@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My DUI Menu</title>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to My DUI</h1>
+  <p id="message">Waiting for Lua...</p>
+  <button id="sendBtn">Send to Lua</button>
+
+  <script>
+    // Listen for messages from Lua
+    window.addEventListener("message", (event) => {
+      console.log("Received from Lua:", event.data);
+      document.getElementById("message").innerText = "Lua says: " + event.data;
+    });
+
+    // Send message to Lua when button is clicked
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      // "macho" object might be provided by your environment
+      if (window.macho && macho.sendMessage) {
+        macho.sendMessage(JSON.stringify({ action: "buttonClicked", data: "Hello Lua!" }));
+      } else {
+        console.warn("No macho API found.");
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,43 +1,75 @@
+-- Step 1: Create DUI (empty page)
+local dui = MachoCreateDui("about:blank")
+
+-- Step 2: Show DUI
+MachoShowDui(dui)
+
+-- Step 3: HTML menu
+local html = [[
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My DUI Menu</title>
+  <title>Zx7 Menu</title>
   <style>
     body {
-      background: #1e1e1e;
+      background: #121212;
       color: white;
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 50px;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 40px;
+      font-size: 36px;
     }
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      background: #2a2a2a;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 10px 0;
       cursor: pointer;
+      width: 200px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #444;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to My DUI</h1>
-  <p id="message">Waiting for Lua...</p>
-  <button id="sendBtn">Send to Lua</button>
+  <h1>Main Menu</h1>
+  <button data-action="play">Play</button>
+  <button data-action="settings">Settings</button>
+  <button data-action="exit">Exit</button>
 
   <script>
     // Listen for messages from Lua
     window.addEventListener("message", (event) => {
-      console.log("Received from Lua:", event.data);
-      document.getElementById("message").innerText = "Lua says: " + event.data;
+      console.log("Lua says:", event.data);
     });
 
-    // Send message to Lua when button is clicked
-    document.getElementById("sendBtn").addEventListener("click", () => {
-      // "macho" object might be provided by your environment
-      if (window.macho && macho.sendMessage) {
-        macho.sendMessage(JSON.stringify({ action: "buttonClicked", data: "Hello Lua!" }));
-      } else {
-        console.warn("No macho API found.");
-      }
+    // When a button is clicked, send message back to Lua
+    document.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-action");
+        if (window.macho && macho.sendMessage) {
+          macho.sendMessage(JSON.stringify({ type: "menuClick", option: action }));
+        }
+      });
     });
   </script>
 </body>
 </html>
+]]
+
+-- Step 4: Inject HTML into DUI
+MachoExecuteDuiScript(dui, "document.write(`" .. html .. "`);")
+
+-- Step 5: Send a test message to DUI
+MachoSendDuiMessage(dui, "Welcome to the menu!")

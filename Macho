@@ -1,15 +1,15 @@
--- Step 1: Create DUI (empty page)
+-- Step 1: Create DUI
 local dui = MachoCreateDui("about:blank")
 
 -- Step 2: Show DUI
 MachoShowDui(dui)
 
--- Step 3: HTML menu
+-- Step 3: HTML with search + categories
 local html = [[
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Zx7 Menu</title>
+  <title>Feature Menu</title>
   <style>
     body {
       background: #121212;
@@ -18,48 +18,86 @@ local html = [[
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
       margin: 0;
+      padding: 20px;
     }
     h1 {
-      margin-bottom: 40px;
-      font-size: 36px;
+      margin-bottom: 20px;
     }
-    button {
+    input {
+      padding: 10px;
+      width: 300px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .category {
       background: #2a2a2a;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 18px;
-      margin: 10px 0;
+      padding: 10px 20px;
+      margin: 5px 0;
+      border-radius: 5px;
+      width: 300px;
+      text-align: center;
       cursor: pointer;
-      width: 200px;
       transition: background 0.3s;
     }
-    button:hover {
+    .category:hover {
       background: #444;
+    }
+    #notFound {
+      color: red;
+      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>Main Menu</h1>
-  <button data-action="play">Play</button>
-  <button data-action="settings">Settings</button>
-  <button data-action="exit">Exit</button>
+  <h1>Macho Menu</h1>
+  <input type="text" id="search" placeholder="Search for a feature...">
+
+  <div id="categories">
+    <div class="category" data-name="Player">Player</div>
+    <div class="category" data-name="Server">Server</div>
+    <div class="category" data-name="Vehicle">Vehicle</div>
+    <div class="category" data-name="Weapon">Weapon</div>
+    <div class="category" data-name="Visuals">Visuals</div>
+    <div class="category" data-name="Miscellaneous">Miscellaneous</div>
+    <div class="category" data-name="Settings">Settings</div>
+  </div>
+
+  <div id="notFound">Not Found</div>
 
   <script>
-    // Listen for messages from Lua
-    window.addEventListener("message", (event) => {
-      console.log("Lua says:", event.data);
+    const searchInput = document.getElementById("search");
+    const categories = document.querySelectorAll(".category");
+    const notFound = document.getElementById("notFound");
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      let found = false;
+
+      categories.forEach(cat => {
+        const name = cat.getAttribute("data-name").toLowerCase();
+        if (name.includes(query) || query === "") {
+          cat.style.display = "block";
+          if (query !== "") found = true;
+        } else {
+          cat.style.display = "none";
+        }
+      });
+
+      // Show/hide "Not Found"
+      if (query !== "" && !Array.from(categories).some(cat => cat.style.display === "block")) {
+        notFound.style.display = "block";
+      } else {
+        notFound.style.display = "none";
+      }
     });
 
-    // When a button is clicked, send message back to Lua
-    document.querySelectorAll("button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const action = btn.getAttribute("data-action");
+    // Send click events to Lua
+    categories.forEach(cat => {
+      cat.addEventListener("click", () => {
         if (window.macho && macho.sendMessage) {
-          macho.sendMessage(JSON.stringify({ type: "menuClick", option: action }));
+          macho.sendMessage(JSON.stringify({ type: "categoryClick", category: cat.getAttribute("data-name") }));
         }
       });
     });
@@ -71,5 +109,5 @@ local html = [[
 -- Step 4: Inject HTML into DUI
 MachoExecuteDuiScript(dui, "document.write(`" .. html .. "`);")
 
--- Step 5: Send a test message to DUI
-MachoSendDuiMessage(dui, "Welcome to the menu!")
+-- Step 5: Optional welcome message
+MachoSendDuiMessage(dui, "Welcome to the Macho Menu!")

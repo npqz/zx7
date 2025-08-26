@@ -1,113 +1,149 @@
--- Step 1: Create DUI
-local dui = MachoCreateDui("about:blank")
-
--- Step 2: Show DUI
-MachoShowDui(dui)
-
--- Step 3: HTML with search + categories
-local html = [[
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Feature Menu</title>
-  <style>
-    body {
-      background: #121212;
-      color: white;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    input {
-      padding: 10px;
-      width: 300px;
-      font-size: 16px;
-      margin-bottom: 20px;
-    }
-    .category {
-      background: #2a2a2a;
-      padding: 10px 20px;
-      margin: 5px 0;
-      border-radius: 5px;
-      width: 300px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .category:hover {
-      background: #444;
-    }
-    #notFound {
-      color: red;
-      margin-top: 10px;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Vespura Menu</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: transparent;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+        .menu-container {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 300px;
+            background: rgba(40, 40, 40, 0.95);
+            border: 1px solid #2a2a2a;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .menu-header {
+            background: #2978b9;
+            padding: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        .menu-title {
+            background: #1a1a1a;
+            padding: 5px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .menu-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .menu-item {
+            padding: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-item.selected {
+            background: #3c3c3c;
+        }
+        .menu-item:hover {
+            background: #4a4a4a;
+        }
+        .menu-item.toggle-enabled {
+            color: #64ff64;
+        }
+        .menu-item.toggle-disabled {
+            color: #ff6464;
+        }
+        .menu-subtitle {
+            background: #1a1a1a;
+            padding: 5px;
+            text-align: center;
+            font-size: 11px;
+            color: #b0b0b0;
+        }
+        .menu-navigation {
+            text-align: center;
+            padding: 5px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Macho Menu</h1>
-  <input type="text" id="search" placeholder="Search for a feature...">
+    <div class="menu-container" id="menu" style="display: none;">
+        <div class="menu-header">Vespura</div>
+        <div class="menu-title">
+            <span id="menu-title"></span>
+            <span id="page-info"></span>
+        </div>
+        <div class="menu-items" id="menu-items"></div>
+        <div class="menu-subtitle" id="menu-subtitle"></div>
+        <div class="menu-navigation">◇</div>
+    </div>
+    <script>
+        let currentItems = [];
+        let selectedIndex = 0;
 
-  <div id="categories">
-    <div class="category" data-name="Player">Player</div>
-    <div class="category" data-name="Server">Server</div>
-    <div class="category" data-name="Vehicle">Vehicle</div>
-    <div class="category" data-name="Weapon">Weapon</div>
-    <div class="category" data-name="Visuals">Visuals</div>
-    <div class="category" data-name="Miscellaneous">Miscellaneous</div>
-    <div class="category" data-name="Settings">Settings</div>
-  </div>
+        window.addEventListener("message", (event) => {
+            const data = event.data;
+            if (data.type === "updateMenu") {
+                document.getElementById("menu").style.display = "block";
+                document.getElementById("menu-title").textContent = data.title;
+                document.getElementById("page-info").textContent = data.pageInfo;
+                document.getElementById("menu-subtitle").textContent = data.subtitle;
+                
+                const itemsContainer = document.getElementById("menu-items");
+                itemsContainer.innerHTML = "";
+                currentItems = data.items;
+                selectedIndex = currentItems.findIndex(item => item.isSelected);
+                
+                currentItems.forEach((item, index) => {
+                    const itemElement = document.createElement("div");
+                    itemElement.className = `menu-item ${item.isSelected ? "selected" : ""} ${item.toggle ? (item.state ? "toggle-enabled" : "toggle-disabled") : ""}`;
+                    itemElement.innerHTML = `
+                        <span>${item.name}</span>
+                        ${item.hasSubmenu ? '<span>→→→</span>' : ''}
+                    `;
+                    itemElement.addEventListener("click", () => {
+                        fetch(`https://vespura_menu/menuAction`, {
+                            method: "POST",
+                            body: JSON.stringify({ action: "select", index })
+                        });
+                    });
+                    itemsContainer.appendChild(itemElement);
+                });
+            }
+        });
 
-  <div id="notFound">Not Found</div>
-
-  <script>
-    const searchInput = document.getElementById("search");
-    const categories = document.querySelectorAll(".category");
-    const notFound = document.getElementById("notFound");
-
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase();
-      let found = false;
-
-      categories.forEach(cat => {
-        const name = cat.getAttribute("data-name").toLowerCase();
-        if (name.includes(query) || query === "") {
-          cat.style.display = "block";
-          if (query !== "") found = true;
-        } else {
-          cat.style.display = "none";
-        }
-      });
-
-      // Show/hide "Not Found"
-      if (query !== "" && !Array.from(categories).some(cat => cat.style.display === "block")) {
-        notFound.style.display = "block";
-      } else {
-        notFound.style.display = "none";
-      }
-    });
-
-    // Send click events to Lua
-    categories.forEach(cat => {
-      cat.addEventListener("click", () => {
-        if (window.macho && macho.sendMessage) {
-          macho.sendMessage(JSON.stringify({ type: "categoryClick", category: cat.getAttribute("data-name") }));
-        }
-      });
-    });
-  </script>
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp") {
+                fetch(`https://vespura_menu/menuAction`, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "navigate", direction: "up" })
+                });
+            } else if (event.key === "ArrowDown") {
+                fetch(`https://vespura_menu/menuAction`, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "navigate", direction: "down" })
+                });
+            } else if (event.key === "Enter") {
+                fetch(`https://vespura_menu/menuAction`, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "select", index: selectedIndex })
+                });
+            } else if (event.key === "Backspace") {
+                fetch(`https://vespura_menu/menuAction`, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "back" })
+                });
+            }
+        });
+    </script>
 </body>
 </html>
-]]
-
--- Step 4: Inject HTML into DUI
-MachoExecuteDuiScript(dui, "document.write(`" .. html .. "`);")
-
--- Step 5: Optional welcome message
-MachoSendDuiMessage(dui, "Welcome to the Macho Menu!")

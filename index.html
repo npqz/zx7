@@ -4,62 +4,101 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vespura Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
-            background: rgba(40, 40, 40, 0.95);
-            color: #fff;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+            color: #ffffff;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         .menu-container {
-            width: 300px;
-            margin: 20px;
+            width: 350px;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
         }
         .menu-header {
-            background: #2978b9;
-            padding: 10px;
+            background: linear-gradient(90deg, #2978b9, #4a90e2);
+            padding: 15px;
             text-align: center;
-            font-size: 18px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         .menu-subtitle {
             background: #3c3c3c;
-            padding: 5px;
+            padding: 8px;
             font-size: 14px;
+            text-align: center;
+            border-bottom: 1px solid #555;
         }
         .menu-items {
             list-style: none;
             padding: 0;
             margin: 0;
+            max-height: 400px;
+            overflow-y: auto;
         }
         .menu-item {
-            padding: 10px;
+            padding: 12px 15px;
             cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            border-bottom: 1px solid #444;
+        }
+        .menu-item:hover {
+            background: #4a4a4a;
+            transform: translateX(5px);
         }
         .menu-item.selected {
-            background: #3c3c3c;
+            background: linear-gradient(90deg, #2978b9, #4a90e2);
+            color: #fff;
         }
         .toggle-enabled::after {
             content: " [ON]";
-            color: #64ff64;
+            color: #4caf50;
+            font-weight: bold;
         }
         .toggle-disabled::after {
             content: " [OFF]";
-            color: #ff6464;
+            color: #f44336;
+            font-weight: bold;
         }
         .has-submenu::after {
-            content: " →→→";
+            content: " →";
             float: right;
+            font-size: 16px;
         }
         .page-info {
-            padding: 5px;
+            padding: 8px 15px;
             text-align: right;
             font-size: 12px;
+            background: #3c3c3c;
+            border-top: 1px solid #555;
         }
         .chart-container {
-            margin-top: 20px;
-            height: 200px;
+            padding: 15px;
+            background: rgba(60, 60, 60, 0.8);
+            border-top: 1px solid #555;
+            height: 250px;
+        }
+        /* Scrollbar styling */
+        .menu-items::-webkit-scrollbar {
+            width: 6px;
+        }
+        .menu-items::-webkit-scrollbar-thumb {
+            background: #2978b9;
+            border-radius: 10px;
+        }
+        .menu-items::-webkit-scrollbar-track {
+            background: #2c2c2c;
         }
     </style>
 </head>
@@ -84,14 +123,14 @@
                     label: 'Toggle State (1 = Enabled, 0 = Disabled)',
                     data: [0, 0, 0, 0, 0, 0, 0],
                     backgroundColor: [
-                        'rgba(100, 255, 100, 0.7)', 'rgba(100, 255, 100, 0.7)', 'rgba(100, 255, 100, 0.7)',
-                        'rgba(100, 255, 100, 0.7)', 'rgba(100, 255, 100, 0.7)', 'rgba(100, 255, 100, 0.7)',
-                        'rgba(100, 255, 100, 0.7)'
+                        'rgba(76, 175, 80, 0.7)', 'rgba(76, 175, 80, 0.7)', 'rgba(76, 175, 80, 0.7)',
+                        'rgba(76, 175, 80, 0.7)', 'rgba(76, 175, 80, 0.7)', 'rgba(76, 175, 80, 0.7)',
+                        'rgba(76, 175, 80, 0.7)'
                     ],
                     borderColor: [
-                        'rgba(50, 150, 50, 1)', 'rgba(50, 150, 50, 1)', 'rgba(50, 150, 50, 1)',
-                        'rgba(50, 150, 50, 1)', 'rgba(50, 150, 50, 1)', 'rgba(50, 150, 50, 1)',
-                        'rgba(50, 150, 50, 1)'
+                        'rgba(56, 142, 60, 1)', 'rgba(56, 142, 60, 1)', 'rgba(56, 142, 60, 1)',
+                        'rgba(56, 142, 60, 1)', 'rgba(56, 142, 60, 1)', 'rgba(56, 142, 60, 1)',
+                        'rgba(56, 142, 60, 1)'
                     ],
                     borderWidth: 1
                 }]
@@ -107,12 +146,16 @@
                             stepSize: 1,
                             callback: function(value) {
                                 return value === 1 ? 'Enabled' : 'Disabled';
-                            }
+                            },
+                            color: '#ffffff'
                         },
                         title: {
                             display: true,
                             text: 'Toggle State',
                             color: '#ffffff'
+                        },
+                        grid: {
+                            color: '#555'
                         }
                     },
                     x: {
@@ -120,6 +163,12 @@
                             display: true,
                             text: 'Menu Options',
                             color: '#ffffff'
+                        },
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: '#555'
                         }
                     }
                 },
@@ -132,11 +181,14 @@
                     title: {
                         display: true,
                         text: 'Vespura Menu Toggle States',
-                        color: '#ffffff'
+                        color: '#ffffff',
+                        font: {
+                            size: 16
+                        }
                     }
                 },
                 layout: {
-                    padding: 20
+                    padding: 10
                 }
             }
         });

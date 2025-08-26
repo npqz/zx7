@@ -28,6 +28,13 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease; /* Cool slide-in animation */
+        }
+        .menu-container.open {
+            opacity: 1;
+            transform: translateX(0);
         }
         .menu-header {
             background: linear-gradient(90deg, #2978b9, #4a90e2);
@@ -101,13 +108,15 @@
     </style>
 </head>
 <body>
-    <div class="menu-container">
+    <div class="menu-container" id="menu-container">
         <div id="menu-title" class="menu-header">Vespura Menu</div>
         <div id="menu-subtitle" class="menu-subtitle"></div>
         <ul id="menu-items" class="menu-items"></ul>
         <div id="page-info" class="page-info"></div>
     </div>
     <script>
+        const menuContainer = document.getElementById('menu-container');
+
         // Menu data handling
         window.addEventListener('message', (event) => {
             if (event.data.type === 'updateMenu') {
@@ -122,6 +131,10 @@
                     itemElement.textContent = item.name;
                     itemsContainer.appendChild(itemElement);
                 });
+            } else if (event.data.type === 'openMenu') {
+                menuContainer.classList.add('open');
+            } else if (event.data.type === 'closeMenu') {
+                menuContainer.classList.remove('open');
             }
         });
 

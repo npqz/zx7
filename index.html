@@ -56,7 +56,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
         }
         .menu-item.selected {
             background-color: #00ff00;
@@ -161,7 +160,7 @@
             menuItems.innerHTML = '';
 
             // Add new items
-            data.items.forEach((item, index) => {
+            data.items.forEach(item => {
                 const div = document.createElement('div');
                 div.className = `menu-item ${item.isSelected ? 'selected' : ''} ${item.toggle ? 'toggle' : ''} ${item.slider ? 'slider' : ''}`;
                 div.innerHTML = `<span>${item.name}</span>`;
@@ -176,26 +175,11 @@
                     slider.min = item.min || 0;
                     slider.max = item.max || 100;
                     slider.value = item.value || 0;
-                    slider.addEventListener('change', () => {
-                        // Send slider value back to Lua
-                        window.postMessage({
-                            type: 'sliderUpdate',
-                            value: parseInt(slider.value)
-                        }, '*');
-                    });
+                    slider.disabled = true; // Disable slider interaction since Lua handles input
                     div.appendChild(slider);
                 } else if (item.hasSubmenu) {
                     div.innerHTML += `<span class="submenu-indicator">></span>`;
                 }
-
-                // Handle item selection
-                div.addEventListener('click', () => {
-                    window.postMessage({
-                        type: 'selectItem',
-                        name: item.name,
-                        index: index
-                    }, '*');
-                });
 
                 menuItems.appendChild(div);
             });
@@ -209,14 +193,6 @@
                 notification.style.display = 'none';
             }, 3000);
         }
-
-        // Inform Lua that the page is loaded
-        window.onload = function() {
-            window.postMessage({
-                type: 'duiLoaded',
-                loaded: true
-            }, '*');
-        };
     </script>
 </body>
 </html>

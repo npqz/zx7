@@ -1,113 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>vMenu Style</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      background: rgba(0, 0, 0, 0.3);
-      height: 100vh;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-    }
-
-    .menu {
-      background: rgba(0, 0, 0, 0.85);
-      border: 2px solid #3498db;
-      border-radius: 6px;
-      width: 280px;
-      padding: 8px;
-      margin-left: 50px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    .menu-header {
-      background: #3498db;
-      padding: 8px;
-      border-radius: 3px;
-      font-weight: bold;
-      text-align: center;
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-
-    .menu button {
-      display: block;
-      width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: none;
-      color: #fff;
-      text-align: left;
-      padding: 10px;
-      margin: 4px 0;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.15s;
-      border-radius: 3px;
-    }
-
-    .menu button:hover, 
-    .menu button.active {
-      background: #3498db;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vespura Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: transparent;
+            color: #ffffff;
+            user-select: none;
+            overflow: hidden;
+        }
+        #menu-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .menu-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .menu-visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .menu-item {
+            transition: background-color 0.2s ease;
+        }
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .selected {
+            background-color: rgba(59, 130, 246, 0.5);
+        }
+    </style>
 </head>
-<body>
-  <div class="menu" id="menu">
-    <div class="menu-header">Main Menu</div>
-    <button onclick="selectOption('vehicles')">Vehicles</button>
-    <button onclick="selectOption('weapons')">Weapons</button>
-    <button onclick="selectOption('player')">Player Options</button>
-    <button onclick="selectOption('settings')">Settings</button>
-    <button onclick="closeMenu()">Close</button>
-  </div>
+<body class="bg-black bg-opacity-80 flex items-center justify-center h-screen">
+    <div id="menu-container" class="menu-hidden bg-gray-900 rounded-lg shadow-xl p-6 w-full max-w-md">
+        <h1 id="menu-title" class="text-2xl font-bold text-blue-400 mb-2"></h1>
+        <h2 id="menu-subtitle" class="text-sm text-gray-400 mb-4"></h2>
+        <div id="menu-items" class="space-y-2 max-h-96 overflow-y-auto">
+            <!-- Menu items will be dynamically inserted here -->
+        </div>
+        <p id="page-info" class="text-sm text-gray-400 mt-4 text-right"></p>
+    </div>
 
-  <script>
-    function selectOption(option) {
-      fetch(`https://${GetParentResourceName()}/menuSelect`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-        body: JSON.stringify({ option: option })
-      });
-    }
+    <script>
+        let currentItems = [];
+        let currentSelectedIndex = 0;
 
-    function closeMenu() {
-      fetch(`https://${GetParentResourceName()}/closeMenu`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json; charset=UTF-8' }
-      });
-    }
+        // Initialize menu state
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('menu-container').classList.add('menu-hidden');
+        });
 
-    // highlight first option by default
-    let buttons = document.querySelectorAll(".menu button");
-    let index = 0;
-    buttons[index].classList.add("active");
+        // Handle DUI messages
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            switch (data.type) {
+                case 'openMenu':
+                    document.getElementById('menu-container').classList.remove('menu-hidden');
+                    document.getElementById('menu-container').classList.add('menu-visible');
+                    break;
+                case 'closeMenu':
+                    document.getElementById('menu-container').classList.remove('menu-visible');
+                    document.getElementById('menu-container').classList.add('menu-hidden');
+                    break;
+                case 'updateMenu':
+                    updateMenu(data);
+                    break;
+            }
+        });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown") {
-        buttons[index].classList.remove("active");
-        index = (index + 1) % buttons.length;
-        buttons[index].classList.add("active");
-      } else if (e.key === "ArrowUp") {
-        buttons[index].classList.remove("active");
-        index = (index - 1 + buttons.length) % buttons.length;
-        buttons[index].classList.add("active");
-      } else if (e.key === "Enter") {
-        buttons[index].click();
-      } else if (e.key === "Escape") {
-        closeMenu();
-      }
-    });
-  </script>
+        // Update menu content
+        function updateMenu(data) {
+            document.getElementById('menu-title').textContent = data.title || 'Vespura Menu';
+            document.getElementById('menu-subtitle').textContent = data.subtitle || '';
+            document.getElementById('page-info').textContent = data.pageInfo || '';
+
+            const menuItemsContainer = document.getElementById('menu-items');
+            menuItemsContainer.innerHTML = '';
+            currentItems = data.items || [];
+
+            currentItems.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = `menu-item flex justify-between items-center p-2 rounded ${item.isSelected ? 'selected' : ''}`;
+                
+                const nameElement = document.createElement('span');
+                nameElement.textContent = item.name;
+                nameElement.className = 'text-white';
+
+                itemElement.appendChild(nameElement);
+
+                if (item.toggle) {
+                    const toggleContainer = document.createElement('label');
+                    toggleContainer.className = 'toggle-switch';
+                    
+                    const toggleInput = document.createElement('input');
+                    toggleInput.type = 'checkbox';
+                    toggleInput.checked = item.state;
+                    toggleInput.disabled = true; // Disable interaction as state is managed by Lua
+
+                    const slider = document.createElement('span');
+                    slider.className = 'slider';
+
+                    toggleContainer.appendChild(toggleInput);
+                    toggleContainer.appendChild(slider);
+                    itemElement.appendChild(toggleContainer);
+                } else if (item.hasSubmenu) {
+                    const arrow = document.createElement('span');
+                    arrow.textContent = '>';
+                    arrow.className = 'text-blue-400';
+                    itemElement.appendChild(arrow);
+                }
+
+                menuItemsContainer.appendChild(itemElement);
+            });
+        }
+
+        // Handle navigation events
+        window.addEventListener('navigate', (event) => {
+            const direction = event.detail.direction;
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach((item, index) => {
+                item.classList.remove('selected');
+                if (index === currentSelectedIndex) {
+                    item.classList.add('selected');
+                }
+            });
+
+            // Auto-scroll to keep selected item in view
+            const selectedItem = menuItems[currentSelectedIndex];
+            if (selectedItem) {
+                selectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+
+        // Handle select event
+        window.addEventListener('select', (event) => {
+            const index = event.detail.index;
+            currentSelectedIndex = index;
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach((item, i) => {
+                item.classList.remove('selected');
+                if (i === index) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+
+        // Handle back event
+        window.addEventListener('back', () => {
+            currentSelectedIndex = 0;
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach((item, index) => {
+                item.classList.remove('selected');
+                if (index === 0) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

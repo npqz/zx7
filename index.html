@@ -25,6 +25,21 @@
             padding: 10px;
             width: 300px;
         }
+        #esp-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00aaff;
+            border-radius: 4px;
+            padding: 8px;
+            display: none;
+            z-index: 10;
+            font-size: 14px;
+        }
+        .esp-visible {
+            display: block;
+        }
         .menu-hidden {
             opacity: 0;
             pointer-events: none;
@@ -126,6 +141,14 @@
             margin-top: 8px;
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
         }
+        #esp-container .esp-entry {
+            margin: 2px 0;
+            color: #00ffff;
+        }
+        #esp-container .esp-entry .distance {
+            color: #ffff00;
+            margin-left: 5px;
+        }
         /* Custom scrollbar */
         #menu-items::-webkit-scrollbar {
             width: 8px;
@@ -153,14 +176,19 @@
         </div>
         <p id="page-info"></p>
     </div>
+    <div id="esp-container">
+        <!-- ESP entries will be dynamically inserted here -->
+    </div>
 
     <script>
         let currentItems = [];
         let currentSelectedIndex = 0;
+        let espEnabled = false;
 
         // Initialize menu state
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('menu-container').classList.add('menu-hidden');
+            document.getElementById('esp-container').classList.remove('esp-visible');
         });
 
         // Handle DUI messages
@@ -177,6 +205,9 @@
                     break;
                 case 'updateMenu':
                     updateMenu(data);
+                    break;
+                case 'updateESP':
+                    if (espEnabled) updateESP(data.espData);
                     break;
             }
         });
@@ -207,7 +238,11 @@
                     const toggleInput = document.createElement('input');
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
-                    toggleInput.disabled = true; // Disable interaction as state is managed by Lua
+                    toggleInput.addEventListener('change', () => {
+                        espEnabled = toggleInput.checked;
+                        document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
+                    });
+                    toggleInput.disabled = !item.interactive;
 
                     const slider = document.createElement('span');
                     slider.className = 'slider';
@@ -226,6 +261,18 @@
             });
         }
 
+        // Update ESP content
+        function updateESP(espData) {
+            const espContainer = document.getElementById('esp-container');
+            espContainer.innerHTML = '';
+            espData.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'esp-entry';
+                entryElement.innerHTML = `<span>${entry.name}</span><span class="distance">${entry.distance}m</span>`;
+                espContainer.appendChild(entryElement);
+            });
+        }
+
         // Handle navigation events
         window.addEventListener('navigate', (event) => {
             const direction = event.detail.direction;
@@ -241,6 +288,12 @@
             currentSelectedIndex = index;
             const menuItems = document.querySelectorAll('.menu-item');
             updateSelection(menuItems);
+            if (currentItems[index].toggle) {
+                currentItems[index].state = !currentItems[index].state;
+                document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
+                espEnabled = currentItems[index].state;
+                document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
+            }
         });
 
         // Handle back event

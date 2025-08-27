@@ -184,6 +184,9 @@
         let currentItems = [];
         let currentSelectedIndex = 0;
         let espEnabled = false;
+        let godModeEnabled = false;
+        let speedHackEnabled = false;
+        let isVisible = true;
 
         // Initialize menu state
         document.addEventListener('DOMContentLoaded', () => {
@@ -239,7 +242,10 @@
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
                     toggleInput.addEventListener('change', () => {
-                        espEnabled = toggleInput.checked;
+                        if (item.name === 'Enable ESP') espEnabled = toggleInput.checked;
+                        if (item.name === 'God Mode') godModeEnabled = toggleInput.checked;
+                        if (item.name === 'Speed Hack') speedHackEnabled = toggleInput.checked;
+                        if (item.name === 'Visibility') isVisible = toggleInput.checked;
                         document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
                     });
                     toggleInput.disabled = !item.interactive;
@@ -291,7 +297,10 @@
             if (currentItems[index].toggle) {
                 currentItems[index].state = !currentItems[index].state;
                 document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
-                espEnabled = currentItems[index].state;
+                if (currentItems[index].name === 'Enable ESP') espEnabled = currentItems[index].state;
+                if (currentItems[index].name === 'God Mode') godModeEnabled = currentItems[index].state;
+                if (currentItems[index].name === 'Speed Hack') speedHackEnabled = currentItems[index].state;
+                if (currentItems[index].name === 'Visibility') isVisible = currentItems[index].state;
                 document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
             }
         });

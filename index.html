@@ -1,36 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vespura Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            background: #1a1a2e;
-            color: #e0e0e0;
-            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-start;
-            height: 100vh;
+            background: transparent;
+            font-family: 'Poppins', sans-serif;
+            color: #e0e0e0;
             overflow: hidden;
         }
         .menu-container {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
             width: 320px;
             min-height: 200px;
             max-height: 75vh;
             background: linear-gradient(135deg, #1a1a2e, #2a2a44);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
-            margin: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             opacity: 1;
-            transform: translateX(0) scale(1);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        .menu-container.open {
+            transform: translateY(-50%) translateX(0);
+        }
+        .menu-container.closed {
+            transform: translateY(-50%) translateX(340px);
         }
         .menu-header {
             background: linear-gradient(90deg, #162955, #2e4a8e);
@@ -50,7 +56,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
-        .menu-items, .submenu-items {
+        .menu-items {
             list-style: none;
             padding: 0;
             margin: 0;
@@ -58,17 +64,17 @@
             overflow-y: auto;
             scrollbar-width: thin;
         }
-        .menu-item, .submenu-item {
+        .menu-item {
             padding: 12px 14px;
             cursor: pointer;
             background: #2a2a44;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: background 0.2s ease;
         }
-        .menu-item:hover, .submenu-item:hover {
+        .menu-item:hover {
             background: #3a3a5a;
         }
-        .menu-item.selected, .submenu-item.selected {
+        .menu-item.selected {
             background: linear-gradient(90deg, #2e4a8e, #4a6eb7);
             color: #fff;
         }
@@ -96,14 +102,14 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
-        .menu-items::-webkit-scrollbar, .submenu-items::-webkit-scrollbar {
+        .menu-items::-webkit-scrollbar {
             width: 6px;
         }
-        .menu-items::-webkit-scrollbar-thumb, .submenu-items::-webkit-scrollbar-thumb {
+        .menu-items::-webkit-scrollbar-thumb {
             background: #2e4a8e;
             border-radius: 10px;
         }
-        .menu-items::-webkit-scrollbar-track, .submenu-items::-webkit-scrollbar-track {
+        .menu-items::-webkit-scrollbar-track {
             background: #1a1a2e;
         }
         input[type="range"] {
@@ -150,206 +156,29 @@
         @media (max-width: 600px) {
             .menu-container {
                 width: 280px;
-                margin: 15px;
+                right: 5px;
             }
             .menu-header {
                 font-size: 18px;
                 padding: 12px;
             }
-            .menu-item, .submenu-item {
+            .menu-item {
                 padding: 10px 12px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="menu-container" id="menu-container">
-        <div id="menu-title" class="menu-header">Vespura Menu</div>
+    <div id="menu-container" class="menu-container closed">
+        <div id="menu-header" class="menu-header">Vespura Menu</div>
         <div id="menu-subtitle" class="menu-subtitle"></div>
-        <ul id="menu-items" class="menu-items">
-            <li class="menu-item">Loading...</li>
-        </ul>
+        <ul id="menu-items" class="menu-items"></ul>
         <div id="page-info" class="page-info"></div>
     </div>
     <div id="notification" class="notification"></div>
     <script>
-        const menuContainer = document.getElementById('menu-container');
-        const notification = document.getElementById('notification');
-        let currentIndex = 0;
-        let currentSubmenu = null;
-
-        // Menu data handling
-        window.addEventListener('message', (event) => {
-            console.log('Message received:', event.data);
-            if (event.data.type === 'update') {
-                const menuData = event.data.menu || { title: 'Vespura Menu', subtitle: '', items: [] };
-                document.getElementById('menu-title').textContent = menuData.title || 'Vespura Menu';
-                document.getElementById('menu-subtitle').textContent = menuData.subtitle || '';
-                document.getElementById('page-info').textContent = `Page ${Math.floor(event.data.scrollOffset / 10) + 1 || 1}`;
-                const itemsContainer = document.getElementById('menu-items');
-                itemsContainer.innerHTML = '';
-                (menuData.items || []).forEach((item, index) => {
-                    const itemElement = document.createElement('li');
-                    const originalText = item.name || `Item ${index + 1}`;
-                    itemElement.textContent = originalText;
-                    itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
-                    itemElement.style.setProperty('--item-index', index);
-                    if (item.slider) {
-                        const slider = document.createElement('input');
-                        slider.type = 'range';
-                        slider.min = item.min || 100;
-                        slider.max = item.max || 5000;
-                        slider.value = item.value || 2000;
-                        slider.disabled = true;
-                        itemElement.appendChild(slider);
-                    }
-                    itemElement.dataset.originalText = originalText;
-                    if (item.hasSubmenu) itemElement.dataset.submenu = item.submenu;
-                    itemsContainer.appendChild(itemElement);
-                });
-                currentIndex = Math.max(0, (event.data.selectedIndex || 1) - 1);
-                updateSelection();
-                menuContainer.classList.add('open');
-                hideNotification();
-            } else if (event.data.type === 'open') {
-                menuContainer.classList.add('open');
-            } else if (event.data.type === 'close') {
-                menuContainer.classList.remove('open');
-                currentSubmenu = null;
-                updateSubmenuVisibility();
-            } else if (event.data.type === 'notify') {
-                showNotification(event.data.message);
-            }
-        });
-
-        // Request update if no data received
-        setTimeout(() => {
-            const itemsContainer = document.getElementById('menu-items');
-            if (itemsContainer.children.length === 1 && itemsContainer.children[0].textContent === 'Loading...') {
-                console.log('No update received, requesting update');
-                window.parent.postMessage({ type: 'requestUpdate' }, '*');
-            }
-        }, 2000);
-
-        // Update selection state
-        function updateSelection() {
-            const items = document.querySelectorAll('.menu-item');
-            if (!items.length) return;
-            items.forEach(item => {
-                item.textContent = item.dataset.originalText || item.textContent;
-                item.classList.remove('selected');
-            });
-            if (items[currentIndex]) {
-                items[currentIndex].classList.add('selected');
-                items[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                console.log('Selected item:', items[currentIndex].textContent);
-                if (items[currentIndex].dataset.submenu) {
-                    currentSubmenu = items[currentIndex].dataset.submenu;
-                    updateSubmenuVisibility();
-                }
-            }
-        }
-
-        // Update submenu visibility
-        function updateSubmenuVisibility() {
-            const submenus = document.querySelectorAll('.submenu-items');
-            submenus.forEach(submenu => {
-                submenu.style.display = submenu.id === `submenu-${currentSubmenu}` ? 'block' : 'none';
-            });
-            const itemsContainer = document.getElementById('menu-items');
-            const submenusArray = Array.from(submenus);
-            if (currentSubmenu) {
-                const activeSubmenu = document.getElementById(`submenu-${currentSubmenu}`);
-                if (activeSubmenu) {
-                    itemsContainer.style.display = 'none';
-                    activeSubmenu.style.display = 'block';
-                }
-            } else {
-                submenusArray.forEach(submenu => submenu.style.display = 'none');
-                itemsContainer.style.display = 'block';
-            }
-        }
-
-        // Handle navigation and selection events
-        window.addEventListener('navigate', (e) => {
-            console.log('Navigate event:', e.detail);
-            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
-            const newIndex = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
-            if (newIndex !== currentIndex && items[newIndex]) {
-                currentIndex = newIndex;
-                updateSelection();
-            }
-        });
-
-        window.addEventListener('select', (e) => {
-            console.log('Select event:', e.detail);
-            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
-            const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
-            if (items[index]) {
-                currentIndex = index;
-                updateSelection();
-                if (items[index].classList.contains('has-submenu') && !currentSubmenu) {
-                    currentSubmenu = items[index].dataset.submenu;
-                    currentIndex = 0;
-                    updateSubmenuVisibility();
-                    updateSelection();
-                }
-            }
-        });
-
-        window.addEventListener('back', () => {
-            console.log('Back event');
-            if (currentSubmenu) {
-                currentSubmenu = null;
-                currentIndex = 0;
-                updateSubmenuVisibility();
-                updateSelection();
-            }
-        });
-
-        // Fallback keyboard controls for testing
-        document.addEventListener('keydown', (e) => {
-            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
-            if (!items.length) return;
-            let newIndex = currentIndex;
-            if (e.key === 'ArrowUp' && currentIndex > 0) newIndex--;
-            if (e.key === 'ArrowDown' && currentIndex < items.length - 1) newIndex++;
-            if (e.key === 'Enter') {
-                updateSelection();
-                console.log('Selected item:', items[currentIndex].textContent);
-                if (!currentSubmenu && items[currentIndex].classList.contains('has-submenu')) {
-                    currentSubmenu = items[currentIndex].dataset.submenu;
-                    currentIndex = 0;
-                    updateSubmenuVisibility();
-                    updateSelection();
-                }
-            }
-            if (e.key === 'Escape') {
-                if (currentSubmenu) {
-                    currentSubmenu = null;
-                    currentIndex = 0;
-                } else {
-                    currentIndex = 0;
-                }
-                updateSubmenuVisibility();
-                updateSelection();
-            }
-            if (newIndex !== currentIndex) {
-                currentIndex = newIndex;
-                updateSelection();
-            }
-        });
-
-        // Notification functions
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(hideNotification, 5000); // Auto-hide after 5 seconds
-        }
-
-        function hideNotification() {
-            notification.style.display = 'none';
-        }
+        // Initial empty script to be replaced by Lua injection
+        console.log("UI initialized, waiting for Lua injection");
     </script>
 </body>
 </html>

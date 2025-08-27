@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: transparent;
+            background: #1a1a2e; /* Solid dark background to merge with menu */
             color: #e0e0e0;
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -22,36 +22,28 @@
             width: 320px;
             min-height: 200px;
             max-height: 75vh;
-            background: rgba(20, 20, 30, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #1a1a2e, #2a2a44); /* Gradient to blend with background */
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
             margin: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             opacity: 1;
-            transform: translateX(0) scale(1);
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .menu-container.open {
-            opacity: 1;
-            transform: translateX(0) scale(1);
+            transform: translateX(0) scale(1); /* No animation for reliability */
         }
         .menu-header {
-            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(90deg, #162955, #2e4a8e);
             padding: 14px;
             text-align: center;
             font-size: 20px;
             font-weight: 600;
             letter-spacing: 1.2px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .menu-subtitle {
-            background: rgba(30, 30, 40, 0.9);
+            background: #25253a;
             padding: 8px;
             font-size: 13px;
             text-align: center;
@@ -69,36 +61,16 @@
         .menu-item {
             padding: 12px 14px;
             cursor: pointer;
-            background: rgba(40, 40, 50, 0.7);
+            background: #2a2a44;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-            position: relative;
-            opacity: 0;
-            transform: translateX(20px);
-            animation: slideIn 0.3s forwards;
-        }
-        .menu-item:nth-child(n) {
-            animation-delay: calc(0.05s * var(--item-index));
-        }
-        @keyframes slideIn {
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            transition: background 0.2s ease;
         }
         .menu-item:hover {
-            background: rgba(60, 60, 80, 0.9);
-            transform: scale(1.02);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            background: #3a3a5a;
         }
         .menu-item.selected {
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            background: linear-gradient(90deg, #2e4a8e, #4a6eb7);
             color: #fff;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1.02); }
-            50% { transform: scale(1.05); }
         }
         .toggle-enabled::after {
             content: " [ON]";
@@ -114,13 +86,13 @@
             content: " →";
             float: right;
             font-size: 14px;
-            color: #60a5fa;
+            color: #4a6eb7;
         }
         .page-info {
             padding: 8px 14px;
             text-align: right;
             font-size: 12px;
-            background: rgba(30, 30, 40, 0.9);
+            background: #25253a;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
@@ -128,47 +100,35 @@
             width: 6px;
         }
         .menu-items::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #3b82f6, #1e3a8a);
+            background: #2e4a8e;
             border-radius: 10px;
-            box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
         }
         .menu-items::-webkit-scrollbar-track {
-            background: transparent;
+            background: #1a1a2e;
         }
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
-            background: linear-gradient(90deg, #4b5563, #9ca3af);
+            background: #3a3a5a;
             border-radius: 5px;
             outline: none;
             margin-top: 8px;
-            transition: background 0.2s ease;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 14px;
             height: 14px;
-            background: #3b82f6;
+            background: #4a6eb7;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
-            transition: transform 0.2s ease;
-        }
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
         }
         input[type="range"]::-moz-range-thumb {
             width: 14px;
             height: 14px;
-            background: #3b82f6;
+            background: #4a6eb7;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
-            transition: transform 0.2s ease;
-        }
-        input[type="range"]::-moz-range-thumb:hover {
-            transform: scale(1.2);
         }
         input[type="range"]:disabled {
             opacity: 1;
@@ -202,7 +162,7 @@
         const menuContainer = document.getElementById('menu-container');
         let currentIndex = 0;
 
-        // Menu data handling
+        // Menu data handling with timeout fallback
         window.addEventListener('message', (event) => {
             console.log('Message received:', event.data);
             if (event.data.type === 'update') {
@@ -215,7 +175,7 @@
                 (menuData.items || []).forEach((item, index) => {
                     const itemElement = document.createElement('li');
                     const originalText = item.name || `Item ${index + 1}`;
-                    itemElement.textContent = originalText; // Explicitly set text
+                    itemElement.textContent = originalText;
                     itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
                     if (item.slider) {
@@ -227,7 +187,7 @@
                         slider.disabled = true;
                         itemElement.appendChild(slider);
                     }
-                    itemElement.dataset.originalText = originalText; // Store original text
+                    itemElement.dataset.originalText = originalText;
                     itemsContainer.appendChild(itemElement);
                 });
                 currentIndex = Math.max(0, (event.data.selectedIndex || 1) - 1);
@@ -240,12 +200,31 @@
             }
         });
 
+        // Fallback to show default items if no update after 2 seconds
+        setTimeout(() => {
+            const itemsContainer = document.getElementById('menu-items');
+            if (itemsContainer.children.length === 1 && itemsContainer.children[0].textContent === 'Loading...') {
+                console.log('No update received, showing default items');
+                itemsContainer.innerHTML = '';
+                ['Godmode', 'ESP', 'NoClip'].forEach((name, index) => {
+                    const itemElement = document.createElement('li');
+                    itemElement.textContent = name;
+                    itemElement.className = `menu-item ${index === 0 ? 'selected' : ''}`;
+                    itemElement.style.setProperty('--item-index', index);
+                    itemElement.dataset.originalText = name;
+                    itemsContainer.appendChild(itemElement);
+                });
+                currentIndex = 0;
+                updateSelection();
+            }
+        }, 2000);
+
         // Update selection state
         function updateSelection() {
             const items = document.querySelectorAll('.menu-item');
             if (!items.length) return;
             items.forEach(item => {
-                item.textContent = item.dataset.originalText || item.textContent; // Restore text
+                item.textContent = item.dataset.originalText || item.textContent;
                 item.classList.remove('selected');
             });
             if (items[currentIndex]) {

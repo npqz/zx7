@@ -20,9 +20,11 @@
         }
         .menu-container {
             width: 320px;
+            min-height: 200px;
             max-height: 75vh;
             background: rgba(20, 20, 30, 0.7);
-            backdrop-filter: blur(10px); /* Glassmorphism effect */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Fallback for Safari */
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -173,6 +175,19 @@
         input[type="range"]:disabled {
             opacity: 1;
         }
+        @media (max-width: 600px) {
+            .menu-container {
+                width: 280px;
+                margin: 15px;
+            }
+            .menu-header {
+                font-size: 18px;
+                padding: 12px;
+            }
+            .menu-item {
+                padding: 10px 12px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -189,8 +204,8 @@
         window.addEventListener('message', (event) => {
             if (event.data.type === 'update') {
                 const menuData = event.data.menu;
-                document.getElementById('menu-title').textContent = menuData.title;
-                document.getElementById('menu-subtitle').textContent = menuData.subtitle;
+                document.getElementById('menu-title').textContent = menuData.title || 'Vespura Menu';
+                document.getElementById('menu-subtitle').textContent = menuData.subtitle || '';
                 document.getElementById('page-info').textContent = `Page ${Math.floor(event.data.scrollOffset / 10) + 1}`;
                 const itemsContainer = document.getElementById('menu-items');
                 itemsContainer.innerHTML = '';
@@ -198,18 +213,19 @@
                     const itemElement = document.createElement('li');
                     itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
-                    itemElement.textContent = item.name;
+                    itemElement.textContent = item.name || 'Unnamed Item';
                     if (item.slider) {
                         const slider = document.createElement('input');
                         slider.type = 'range';
-                        slider.min = 100;
-                        slider.max = 5000;
+                        slider.min = item.min || 100;
+                        slider.max = item.max || 5000;
                         slider.value = item.value || 2000;
                         slider.disabled = true;
                         itemElement.appendChild(slider);
                     }
                     itemsContainer.appendChild(itemElement);
                 });
+                menuContainer.classList.add('open'); // Ensure menu is visible after update
             } else if (event.data.type === 'open') {
                 menuContainer.classList.add('open');
             } else if (event.data.type === 'close') {
@@ -222,7 +238,7 @@
             const selectedItems = document.querySelectorAll('.menu-item.selected');
             selectedItems.forEach(item => item.classList.remove('selected'));
             const items = document.querySelectorAll('.menu-item');
-            const index = Math.min(Math.max(0, e.detail.index - 1), items.length - 1);
+            const index = Math.min(Math.max(0, (e.detail.index || 1) - 1), items.length - 1);
             if (items[index]) {
                 items[index].classList.add('selected');
                 items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -231,7 +247,7 @@
 
         window.addEventListener('select', (e) => {
             const items = document.querySelectorAll('.menu-item');
-            const index = e.detail.index - 1;
+            const index = Math.min(Math.max(0, (e.detail.index || 1) - 1), items.length - 1);
             if (items[index]) {
                 items[index].classList.add('selected');
             }

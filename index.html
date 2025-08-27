@@ -32,8 +32,8 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 1; /* Force visible for debugging */
-            transform: translateX(0) scale(1); /* Force visible for debugging */
+            opacity: 1;
+            transform: translateX(0) scale(1);
             transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-container.open {
@@ -214,9 +214,10 @@
                 itemsContainer.innerHTML = '';
                 (menuData.items || []).forEach((item, index) => {
                     const itemElement = document.createElement('li');
+                    const originalText = item.name || `Item ${index + 1}`;
+                    itemElement.textContent = originalText; // Explicitly set text
                     itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
-                    itemElement.textContent = item.name || `Item ${index + 1}`;
                     if (item.slider) {
                         const slider = document.createElement('input');
                         slider.type = 'range';
@@ -226,13 +227,11 @@
                         slider.disabled = true;
                         itemElement.appendChild(slider);
                     }
+                    itemElement.dataset.originalText = originalText; // Store original text
                     itemsContainer.appendChild(itemElement);
                 });
-                currentIndex = event.data.selectedIndex - 1 || 0;
-                if (itemsContainer.children.length > 0) {
-                    itemsContainer.children[currentIndex].classList.add('selected');
-                    itemsContainer.children[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
+                currentIndex = Math.max(0, (event.data.selectedIndex || 1) - 1);
+                updateSelection();
                 menuContainer.classList.add('open');
             } else if (event.data.type === 'open') {
                 menuContainer.classList.add('open');
@@ -241,17 +240,29 @@
             }
         });
 
+        // Update selection state
+        function updateSelection() {
+            const items = document.querySelectorAll('.menu-item');
+            if (!items.length) return;
+            items.forEach(item => {
+                item.textContent = item.dataset.originalText || item.textContent; // Restore text
+                item.classList.remove('selected');
+            });
+            if (items[currentIndex]) {
+                items[currentIndex].classList.add('selected');
+                items[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                console.log('Selected item:', items[currentIndex].textContent);
+            }
+        }
+
         // Handle navigation and selection events
         window.addEventListener('navigate', (e) => {
             console.log('Navigate event:', e.detail);
             const items = document.querySelectorAll('.menu-item');
-            const selectedItems = document.querySelectorAll('.menu-item.selected');
-            selectedItems.forEach(item => item.classList.remove('selected'));
-            const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
-            if (items[index]) {
-                items[index].classList.add('selected');
-                items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                currentIndex = index;
+            const newIndex = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
+            if (newIndex !== currentIndex && items[newIndex]) {
+                currentIndex = newIndex;
+                updateSelection();
             }
         });
 
@@ -260,19 +271,17 @@
             const items = document.querySelectorAll('.menu-item');
             const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
             if (items[index]) {
-                items[index].classList.add('selected');
+                currentIndex = index;
+                updateSelection();
             }
         });
 
         window.addEventListener('back', () => {
             console.log('Back event');
-            const selectedItems = document.querySelectorAll('.menu-item.selected');
-            selectedItems.forEach(item => item.classList.remove('selected'));
             const items = document.querySelectorAll('.menu-item');
             if (items[0]) {
-                items[0].classList.add('selected');
-                items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 currentIndex = 0;
+                updateSelection();
             }
         });
 
@@ -284,21 +293,16 @@
             if (e.key === 'ArrowUp' && currentIndex > 0) newIndex--;
             if (e.key === 'ArrowDown' && currentIndex < items.length - 1) newIndex++;
             if (e.key === 'Enter') {
-                items[currentIndex].classList.add('selected');
+                updateSelection();
                 console.log('Selected item:', items[currentIndex].textContent);
             }
             if (e.key === 'Escape') {
-                const selectedItems = document.querySelectorAll('.menu-item.selected');
-                selectedItems.forEach(item => item.classList.remove('selected'));
-                items[0].classList.add('selected');
-                newIndex = 0;
+                currentIndex = 0;
+                updateSelection();
             }
             if (newIndex !== currentIndex) {
-                const selectedItems = document.querySelectorAll('.menu-item.selected');
-                selectedItems.forEach(item => item.classList.remove('selected'));
-                items[newIndex].classList.add('selected');
-                items[newIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 currentIndex = newIndex;
+                updateSelection();
             }
         });
     </script>

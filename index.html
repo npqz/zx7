@@ -184,9 +184,6 @@
         let currentItems = [];
         let currentSelectedIndex = 0;
         let espEnabled = false;
-        let godModeEnabled = false;
-        let speedHackEnabled = false;
-        let isVisible = true;
 
         // Initialize menu state
         document.addEventListener('DOMContentLoaded', () => {
@@ -242,11 +239,9 @@
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
                     toggleInput.addEventListener('change', () => {
-                        if (item.name === 'Enable ESP') espEnabled = toggleInput.checked;
-                        if (item.name === 'God Mode') godModeEnabled = toggleInput.checked;
-                        if (item.name === 'Speed Hack') speedHackEnabled = toggleInput.checked;
-                        if (item.name === 'Visibility') isVisible = toggleInput.checked;
+                        espEnabled = toggleInput.checked;
                         document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
+                        sendToggleMessage(item.name, espEnabled); // Notify Lua of toggle change
                     });
                     toggleInput.disabled = !item.interactive;
 
@@ -279,7 +274,12 @@
             });
         }
 
-        // Handle navigation events
+        // Send toggle message to Lua
+        function sendToggleMessage(itemName, state) {
+            window.parent.postMessage(JSON.stringify({ type: 'toggle', name: itemName, state: state }), '*');
+        }
+
+        // Handle navigation events (placeholder for key inputs)
         window.addEventListener('navigate', (event) => {
             const direction = event.detail.direction;
             const menuItems = document.querySelectorAll('.menu-item');
@@ -297,11 +297,9 @@
             if (currentItems[index].toggle) {
                 currentItems[index].state = !currentItems[index].state;
                 document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
-                if (currentItems[index].name === 'Enable ESP') espEnabled = currentItems[index].state;
-                if (currentItems[index].name === 'God Mode') godModeEnabled = currentItems[index].state;
-                if (currentItems[index].name === 'Speed Hack') speedHackEnabled = currentItems[index].state;
-                if (currentItems[index].name === 'Visibility') isVisible = currentItems[index].state;
+                espEnabled = currentItems[index].state;
                 document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
+                sendToggleMessage(currentItems[index].name, espEnabled); // Notify Lua
             }
         });
 

@@ -13,7 +13,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            background: transparent;
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -26,15 +26,16 @@
             position: relative;
         }
         
-        /* Animated background particles */
+        /* Animated background particles - constrained to menu area */
         .bg-particles {
-            position: fixed;
+            position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
+            right: 0;
+            width: 450px;
             height: 100%;
             pointer-events: none;
             z-index: 0;
+            overflow: hidden;
         }
         
         .particle {
@@ -405,10 +406,10 @@
     <script>
         const menuContainer = document.getElementById('menu-container');
         
-        // Create floating particles
+        // Create floating particles constrained to menu area
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
-            const particleCount = 15;
+            const particleCount = 8; // Reduced for smaller area
             
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
@@ -529,9 +530,9 @@
         document.head.appendChild(style);
         
         // Auto-open menu for demo (remove in production)
-        setTimeout(() => {
-            menuContainer.classList.add('open');
-        }, 500);
+        // setTimeout(() => {
+        //     menuContainer.classList.add('open');
+        // }, 500);
     </script>
 </body>
 </html>

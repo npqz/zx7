@@ -1,278 +1,222 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1280, initial-scale=1.0">
     <title>Vespura Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
-            background: transparent; /* Critical for FiveM DUI */
-            font-family: 'Roboto', sans-serif;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: rgba(0, 0, 0, 0.8);
             color: #ffffff;
+            display: none;
             overflow: hidden;
+            width: 1280px;
+            height: 720px;
         }
         .menu-container {
             position: absolute;
-            top: 20px; /* Top-right corner */
-            right: 20px;
-            width: 300px; /* Compact width */
-            min-height: 200px;
-            max-height: 80vh; /* Prevent overflow */
-            background: rgba(20, 20, 20, 0.85); /* Semi-transparent dark background */
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            opacity: 1;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 1000;
-        }
-        .menu-container.open {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        .menu-container.closed {
-            transform: translateX(320px); /* Slide off-screen to the right */
-            opacity: 0;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .menu-header {
-            background: linear-gradient(90deg, #0d47a1, #1976d2); /* Blue gradient */
-            padding: 12px;
             text-align: center;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff00;
         }
-        .menu-subtitle {
-            background: rgba(30, 30, 30, 0.9);
-            padding: 6px;
-            font-size: 12px;
-            font-style: italic;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            color: #b0b0b0;
-        }
-        .menu-items {
-            list-style: none;
-            padding: 0;
+        .menu-header h1 {
             margin: 0;
-            flex-grow: 1;
-            overflow-y: auto;
-            scrollbar-width: thin;
+            font-size: 24px;
+            color: #00ff00;
         }
-        .menu-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            background: transparent;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background 0.2s ease, color 0.2s ease;
-            font-size: 14px;
-        }
-        .menu-item:hover {
-            background: #ffffff;
-            color: #0d47a1;
-        }
-        .menu-item.selected {
-            background: linear-gradient(90deg, #1976d2, #42a5f5);
+        .menu-header p {
+            margin: 5px 0 0;
+            font-size: 16px;
             color: #ffffff;
         }
-        .toggle-enabled::after {
-            content: " [ON]";
-            color: #4caf50;
-            font-weight: 700;
-            float: right;
+        .menu-items {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
         }
-        .toggle-disabled::after {
-            content: " [OFF]";
-            color: #ef5350;
-            font-weight: 700;
-            float: right;
-        }
-        .has-submenu::after {
-            content: " →";
-            float: right;
-            font-size: 14px;
-            color: #42a5f5;
-        }
-        .page-info {
-            padding: 6px 12px;
-            text-align: right;
-            font-size: 12px;
-            background: rgba(30, 30, 30, 0.9);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #b0b0b0;
-        }
-        .menu-items::-webkit-scrollbar {
-            width: 5px;
-        }
-        .menu-items::-webkit-scrollbar-thumb {
-            background: #1976d2;
-            border-radius: 10px;
-        }
-        .menu-items::-webkit-scrollbar-track {
-            background: rgba(20, 20, 20, 0.8);
-        }
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 5px;
-            background: #424242;
+        .menu-item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
-            outline: none;
-            margin-top: 6px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 12px;
-            height: 12px;
-            background: #1976d2;
-            border-radius: 50%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             cursor: pointer;
         }
-        input[type="range"]::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: #1976d2;
-            border-radius: 50%;
-            cursor: pointer;
+        .menu-item.selected {
+            background-color: #00ff00;
+            color: #000000;
         }
-        input[type="range"]:disabled {
-            opacity: 1;
+        .menu-item.toggle .toggle-switch {
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            background-color: #555;
+            border-radius: 10px;
+            position: relative;
+        }
+        .menu-item.toggle .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 1px;
+            left: 1px;
+            transition: transform 0.2s;
+        }
+        .menu-item.toggle .toggle-switch.on::after {
+            transform: translateX(20px);
+            background-color: #00ff00;
+        }
+        .menu-item.slider {
+            display: flex;
+            align-items: center;
+        }
+        .menu-item.slider input[type="range"] {
+            width: 150px;
+            margin-left: 10px;
+        }
+        .menu-item .submenu-indicator {
+            color: #00ff00;
+            font-size: 14px;
+        }
+        .menu-footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ffffff;
         }
         .notification {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(30, 30, 30, 0.9);
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.9);
             color: #ffffff;
-            padding: 10px 15px;
-            border-radius: 6px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
             display: none;
-            text-align: center;
-            font-size: 14px;
-            transition: opacity 0.5s ease;
-        }
-        .notification.show {
-            display: block;
-            opacity: 1;
-        }
-        .notification.hide {
-            opacity: 0;
         }
     </style>
 </head>
 <body>
-    <div id="menu-container" class="menu-container closed">
-        <div id="menu-header" class="menu-header">Vespura Menu</div>
-        <div id="menu-subtitle" class="menu-subtitle"></div>
-        <ul id="menu-items" class="menu-items"></ul>
-        <div id="page-info" class="page-info"></div>
+    <div class="menu-container" id="menuContainer">
+        <div class="menu-header">
+            <h1 id="menuTitle">Vespura Menu</h1>
+            <p id="menuSubtitle">Main Menu</p>
+        </div>
+        <div class="menu-items" id="menuItems">
+            <!-- Menu items will be dynamically inserted here -->
+        </div>
+        <div class="menu-footer" id="pageInfo"></div>
     </div>
-    <div id="notification" class="notification"></div>
-    <script>
-        // Initialize menu state
-        let currentMenu = 'main';
-        let selectedIndex = 1;
+    <div class="notification" id="notification"></div>
 
+    <script>
         // Handle messages from Lua
         window.addEventListener('message', function(event) {
             const data = event.data;
-            console.log('Received DUI message:', data); // Debug log for F8 console
+
             if (data.type === 'openMenu') {
-                document.getElementById('menu-container').classList.remove('closed');
-                document.getElementById('menu-container').classList.add('open');
+                document.body.style.display = 'block';
             } else if (data.type === 'closeMenu') {
-                document.getElementById('menu-container').classList.remove('open');
-                document.getElementById('menu-container').classList.add('closed');
+                document.body.style.display = 'none';
             } else if (data.type === 'updateMenu') {
-                // Update header with playerName + " Vmenu"
-                document.getElementById('menu-header').textContent = (data.playerName || 'Player') + ' Vmenu';
-                document.getElementById('menu-subtitle').textContent = data.subtitle || '';
-                document.getElementById('page-info').textContent = data.pageInfo || '';
-                const menuItems = document.getElementById('menu-items');
-                menuItems.innerHTML = '';
-                data.items.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    li.classList.add('menu-item');
-                    if (item.isSelected) li.classList.add('selected');
-                    if (item.toggle && item.state) {
-                        li.classList.add('toggle-enabled');
-                    } else if (item.toggle && !item.state) {
-                        li.classList.add('toggle-disabled');
-                    }
-                    if (item.hasSubmenu) li.classList.add('has-submenu');
-                    if (item.slider) {
-                        li.innerHTML = `${item.name} (${item.value}m)<br><input type="range" min="${item.min}" max="${item.max}" value="${item.value}" oninput="updateSlider(${index}, this.value)">`;
-                    } else {
-                        li.textContent = item.name;
-                    }
-                    li.addEventListener('click', () => {
-                        window.postMessage({ type: 'select', index: index + 1 }, '*'); // Lua expects 1-based index
-                    });
-                    menuItems.appendChild(li);
-                });
+                updateMenu(data);
             } else if (data.type === 'notify') {
-                const notification = document.getElementById('notification');
-                notification.textContent = data.message;
-                notification.classList.add('show');
-                notification.classList.remove('hide');
-                setTimeout(() => {
-                    notification.classList.add('hide');
-                    notification.classList.remove('show');
-                }, 3000);
-            } else if (data.type === 'executeScript') {
-                try {
-                    eval(data.script); // Execute script sent from Lua (use cautiously)
-                } catch (e) {
-                    console.error('Error executing script:', e);
-                }
+                showNotification(data.message);
             }
         });
 
-        // Send slider updates to Lua
-        function updateSlider(index, value) {
-            window.postMessage({ type: 'sliderUpdate', index: index + 1, value: parseInt(value) }, '*');
+        function updateMenu(data) {
+            const menuContainer = document.getElementById('menuContainer');
+            const menuTitle = document.getElementById('menuTitle');
+            const menuSubtitle = document.getElementById('menuSubtitle');
+            const menuItems = document.getElementById('menuItems');
+            const pageInfo = document.getElementById('pageInfo');
+
+            menuTitle.textContent = data.title || 'Vespura Menu';
+            menuSubtitle.textContent = data.subtitle || '';
+            pageInfo.textContent = data.pageInfo || '';
+
+            // Clear existing items
+            menuItems.innerHTML = '';
+
+            // Add new items
+            data.items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `menu-item ${item.isSelected ? 'selected' : ''} ${item.toggle ? 'toggle' : ''} ${item.slider ? 'slider' : ''}`;
+                div.innerHTML = `<span>${item.name}</span>`;
+
+                if (item.toggle) {
+                    const toggle = document.createElement('div');
+                    toggle.className = `toggle-switch ${item.state ? 'on' : ''}`;
+                    div.appendChild(toggle);
+                } else if (item.slider) {
+                    const slider = document.createElement('input');
+                    slider.type = 'range';
+                    slider.min = item.min || 0;
+                    slider.max = item.max || 100;
+                    slider.value = item.value || 0;
+                    slider.addEventListener('change', () => {
+                        // Send slider value back to Lua
+                        window.postMessage({
+                            type: 'sliderUpdate',
+                            value: parseInt(slider.value)
+                        }, '*');
+                    });
+                    div.appendChild(slider);
+                } else if (item.hasSubmenu) {
+                    div.innerHTML += `<span class="submenu-indicator">></span>`;
+                }
+
+                // Handle item selection
+                div.addEventListener('click', () => {
+                    window.postMessage({
+                        type: 'selectItem',
+                        name: item.name,
+                        index: index
+                    }, '*');
+                });
+
+                menuItems.appendChild(div);
+            });
         }
 
-        // Handle navigation events
-        window.addEventListener('navigate', function(event) {
-            const direction = event.detail.direction;
-            window.postMessage({ type: 'navigate', direction: direction }, '*');
-        });
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
 
-        // Handle back event
-        window.addEventListener('back', function() {
-            window.postMessage({ type: 'back' }, '*');
-        });
-
-        // Handle keyboard input for navigation (to support FiveM keybinds)
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('menu-container').classList.contains('open')) {
-                if (event.keyCode === 38) { // Up arrow
-                    window.postMessage({ type: 'navigate', direction: 'up' }, '*');
-                } else if (event.keyCode === 40) { // Down arrow
-                    window.postMessage({ type: 'navigate', direction: 'down' }, '*');
-                } else if (event.keyCode === 37) { // Left arrow
-                    window.postMessage({ type: 'navigate', direction: 'left' }, '*');
-                } else if (event.keyCode === 39) { // Right arrow
-                    window.postMessage({ type: 'navigate', direction: 'right' }, '*');
-                } else if (event.keyCode === 13) { // Enter
-                    window.postMessage({ type: 'select', index: selectedIndex }, '*');
-                } else if (event.keyCode === 8) { // Backspace
-                    window.postMessage({ type: 'back' }, '*');
-                }
-            }
-        });
-
-        console.log("Vespura Menu UI initialized, waiting for DUI messages");
+        // Inform Lua that the page is loaded
+        window.onload = function() {
+            window.postMessage({
+                type: 'duiLoaded',
+                loaded: true
+            }, '*');
+        };
     </script>
 </body>
 </html>

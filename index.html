@@ -24,7 +24,7 @@
             max-height: 75vh;
             background: rgba(20, 20, 30, 0.7);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); /* Fallback for Safari */
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -32,8 +32,8 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0;
-            transform: translateX(100px) scale(0.9);
+            opacity: 1; /* Force visible for debugging */
+            transform: translateX(0) scale(1); /* Force visible for debugging */
             transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-container.open {
@@ -124,7 +124,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
-        /* Scrollbar styling */
         .menu-items::-webkit-scrollbar {
             width: 6px;
         }
@@ -136,7 +135,6 @@
         .menu-items::-webkit-scrollbar-track {
             background: transparent;
         }
-        /* Slider styling */
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -194,26 +192,31 @@
     <div class="menu-container" id="menu-container">
         <div id="menu-title" class="menu-header">Vespura Menu</div>
         <div id="menu-subtitle" class="menu-subtitle"></div>
-        <ul id="menu-items" class="menu-items"></ul>
+        <ul id="menu-items" class="menu-items">
+            <!-- Default placeholder items -->
+            <li class="menu-item" style="--item-index: 0;">Loading...</li>
+        </ul>
         <div id="page-info" class="page-info"></div>
     </div>
     <script>
         const menuContainer = document.getElementById('menu-container');
+        let currentIndex = 0;
 
         // Menu data handling
         window.addEventListener('message', (event) => {
+            console.log('Message received:', event.data);
             if (event.data.type === 'update') {
-                const menuData = event.data.menu;
+                const menuData = event.data.menu || { title: 'Vespura Menu', subtitle: '', items: [] };
                 document.getElementById('menu-title').textContent = menuData.title || 'Vespura Menu';
                 document.getElementById('menu-subtitle').textContent = menuData.subtitle || '';
-                document.getElementById('page-info').textContent = `Page ${Math.floor(event.data.scrollOffset / 10) + 1}`;
+                document.getElementById('page-info').textContent = `Page ${Math.floor(event.data.scrollOffset / 10) + 1 || 1}`;
                 const itemsContainer = document.getElementById('menu-items');
                 itemsContainer.innerHTML = '';
-                menuData.items.forEach((item, index) => {
+                (menuData.items || []).forEach((item, index) => {
                     const itemElement = document.createElement('li');
                     itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
-                    itemElement.textContent = item.name || 'Unnamed Item';
+                    itemElement.textContent = item.name || `Item ${index + 1}`;
                     if (item.slider) {
                         const slider = document.createElement('input');
                         slider.type = 'range';
@@ -225,7 +228,12 @@
                     }
                     itemsContainer.appendChild(itemElement);
                 });
-                menuContainer.classList.add('open'); // Ensure menu is visible after update
+                currentIndex = event.data.selectedIndex - 1 || 0;
+                if (itemsContainer.children.length > 0) {
+                    itemsContainer.children[currentIndex].classList.add('selected');
+                    itemsContainer.children[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                menuContainer.classList.add('open');
             } else if (event.data.type === 'open') {
                 menuContainer.classList.add('open');
             } else if (event.data.type === 'close') {
@@ -235,31 +243,62 @@
 
         // Handle navigation and selection events
         window.addEventListener('navigate', (e) => {
+            console.log('Navigate event:', e.detail);
+            const items = document.querySelectorAll('.menu-item');
             const selectedItems = document.querySelectorAll('.menu-item.selected');
             selectedItems.forEach(item => item.classList.remove('selected'));
-            const items = document.querySelectorAll('.menu-item');
-            const index = Math.min(Math.max(0, (e.detail.index || 1) - 1), items.length - 1);
+            const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
             if (items[index]) {
                 items[index].classList.add('selected');
                 items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                currentIndex = index;
             }
         });
 
         window.addEventListener('select', (e) => {
+            console.log('Select event:', e.detail);
             const items = document.querySelectorAll('.menu-item');
-            const index = Math.min(Math.max(0, (e.detail.index || 1) - 1), items.length - 1);
+            const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
             if (items[index]) {
                 items[index].classList.add('selected');
             }
         });
 
         window.addEventListener('back', () => {
+            console.log('Back event');
             const selectedItems = document.querySelectorAll('.menu-item.selected');
             selectedItems.forEach(item => item.classList.remove('selected'));
             const items = document.querySelectorAll('.menu-item');
             if (items[0]) {
                 items[0].classList.add('selected');
                 items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                currentIndex = 0;
+            }
+        });
+
+        // Fallback keyboard controls for testing
+        document.addEventListener('keydown', (e) => {
+            const items = document.querySelectorAll('.menu-item');
+            if (!items.length) return;
+            let newIndex = currentIndex;
+            if (e.key === 'ArrowUp' && currentIndex > 0) newIndex--;
+            if (e.key === 'ArrowDown' && currentIndex < items.length - 1) newIndex++;
+            if (e.key === 'Enter') {
+                items[currentIndex].classList.add('selected');
+                console.log('Selected item:', items[currentIndex].textContent);
+            }
+            if (e.key === 'Escape') {
+                const selectedItems = document.querySelectorAll('.menu-item.selected');
+                selectedItems.forEach(item => item.classList.remove('selected'));
+                items[0].classList.add('selected');
+                newIndex = 0;
+            }
+            if (newIndex !== currentIndex) {
+                const selectedItems = document.querySelectorAll('.menu-item.selected');
+                selectedItems.forEach(item => item.classList.remove('selected'));
+                items[newIndex].classList.add('selected');
+                items[newIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                currentIndex = newIndex;
             }
         });
     </script>

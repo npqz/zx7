@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background: #1a1a2e; /* Solid dark background to merge with menu */
+            background: #1a1a2e;
             color: #e0e0e0;
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -22,7 +22,7 @@
             width: 320px;
             min-height: 200px;
             max-height: 75vh;
-            background: linear-gradient(135deg, #1a1a2e, #2a2a44); /* Gradient to blend with background */
+            background: linear-gradient(135deg, #1a1a2e, #2a2a44);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
             margin: 20px;
@@ -30,7 +30,7 @@
             flex-direction: column;
             overflow: hidden;
             opacity: 1;
-            transform: translateX(0) scale(1); /* No animation for reliability */
+            transform: translateX(0) scale(1);
         }
         .menu-header {
             background: linear-gradient(90deg, #162955, #2e4a8e);
@@ -50,7 +50,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
-        .menu-items {
+        .menu-items, .submenu-items {
             list-style: none;
             padding: 0;
             margin: 0;
@@ -58,17 +58,17 @@
             overflow-y: auto;
             scrollbar-width: thin;
         }
-        .menu-item {
+        .menu-item, .submenu-item {
             padding: 12px 14px;
             cursor: pointer;
             background: #2a2a44;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: background 0.2s ease;
         }
-        .menu-item:hover {
+        .menu-item:hover, .submenu-item:hover {
             background: #3a3a5a;
         }
-        .menu-item.selected {
+        .menu-item.selected, .submenu-item.selected {
             background: linear-gradient(90deg, #2e4a8e, #4a6eb7);
             color: #fff;
         }
@@ -96,14 +96,14 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             color: #a0a0a0;
         }
-        .menu-items::-webkit-scrollbar {
+        .menu-items::-webkit-scrollbar, .submenu-items::-webkit-scrollbar {
             width: 6px;
         }
-        .menu-items::-webkit-scrollbar-thumb {
+        .menu-items::-webkit-scrollbar-thumb, .submenu-items::-webkit-scrollbar-thumb {
             background: #2e4a8e;
             border-radius: 10px;
         }
-        .menu-items::-webkit-scrollbar-track {
+        .menu-items::-webkit-scrollbar-track, .submenu-items::-webkit-scrollbar-track {
             background: #1a1a2e;
         }
         input[type="range"] {
@@ -142,7 +142,7 @@
                 font-size: 18px;
                 padding: 12px;
             }
-            .menu-item {
+            .menu-item, .submenu-item {
                 padding: 10px 12px;
             }
         }
@@ -153,14 +153,94 @@
         <div id="menu-title" class="menu-header">Vespura Menu</div>
         <div id="menu-subtitle" class="menu-subtitle"></div>
         <ul id="menu-items" class="menu-items">
-            <!-- Default placeholder items -->
-            <li class="menu-item" style="--item-index: 0;">Loading...</li>
+            <!-- Main Menu Tabs -->
+            <li class="menu-item has-submenu" data-submenu="self">Self</li>
+            <li class="menu-item has-submenu" data-submenu="online">Online</li>
+            <li class="menu-item has-submenu" data-submenu="vehicle">Vehicle</li>
+            <li class="menu-item has-submenu" data-submenu="weapons">Weapons</li>
+            <li class="menu-item has-submenu" data-submenu="world">World</li>
+            <li class="menu-item has-submenu" data-submenu="misc">Misc</li>
+            <li class="menu-item has-submenu" data-submenu="saved">Saved</li>
+            <li class="menu-item has-submenu" data-submenu="loadouts">Loadouts</li>
+        </ul>
+        <!-- Submenus (hidden by default, shown via JavaScript) -->
+        <ul id="submenu-self" class="submenu-items" style="display: none;">
+            <li class="submenu-item">Godmode</li>
+            <li class="submenu-item">Stamina</li>
+            <li class="submenu-item">Fast Run</li>
+            <li class="submenu-item">Fast Swim</li>
+            <li class="submenu-item">Super Jump</li>
+            <li class="submenu-item">No Ragdoll</li>
+            <li class="submenu-item">Invisible</li>
+            <li class="submenu-item">Spawn by Name</li>
+            <li class="submenu-item">Random Outfit</li>
+            <li class="submenu-item">Change Hair</li>
+            <li class="submenu-item">Reset Ped</li>
+        </ul>
+        <ul id="submenu-online" class="submenu-items" style="display: none;">
+            <li class="submenu-item">ESP</li>
+            <li class="submenu-item">No Clip</li>
+            <li class="submenu-item">Teleport to Waypoint</li>
+        </ul>
+        <ul id="submenu-vehicle" class="submenu-items" style="display: none;">
+            <li class="submenu-item">Repair</li>
+            <li class="submenu-item">Clean</li>
+            <li class="submenu-item">Flip</li>
+            <li class="submenu-item">Engine On</li>
+            <li class="submenu-item">Fuel</li>
+            <li class="submenu-item">No Fall</li>
+            <li class="submenu-item">Speed Boost</li>
+            <li class="submenu-item">Max Upgrades</li>
+            <li class="submenu-item">Change Color</li>
+            <li class="submenu-item">Delete</li>
+            <li class="submenu-item">Open All Doors</li>
+            <li class="submenu-item">Close All Doors</li>
+            <li class="submenu-item">Roll Down Windows</li>
+            <li class="submenu-item">Roll Up Windows</li>
+            <li class="submenu-item">Save Vehicle</li>
+            <li class="submenu-item">Set Personal</li>
+            <li class="submenu-item">Spawn Personal</li>
+            <li class="submenu-item">Delete Personal</li>
+        </ul>
+        <ul id="submenu-weapons" class="submenu-items" style="display: none;">
+            <li class="submenu-item">Get All Weapons</li>
+            <li class="submenu-item">Remove Weapons</li>
+            <li class="submenu-item">Infinite Ammo</li>
+            <li class="submenu-item">No Reload</li>
+            <li class="submenu-item">Save Loadout</li>
+            <li class="submenu-item">Spawn Specific Loadout</li>
+            <li class="submenu-item">Delete Loadout</li>
+        </ul>
+        <ul id="submenu-world" class="submenu-items" style="display: none;">
+            <li class="submenu-item">Freeze Time</li>
+            <li class="submenu-item">Sync Time</li>
+            <li class="submenu-item">Set Time</li>
+            <li class="submenu-item">Weather</li>
+            <li class="submenu-item">Never Wanted</li>
+            <li class="submenu-item">Ignored</li>
+            <li class="submenu-item">Parachutes</li>
+            <li class="submenu-item">Auto Clean</li>
+            <li class="submenu-item">PVP</li>
+        </ul>
+        <ul id="submenu-misc" class="submenu-items" style="display: none;">
+            <li class="submenu-item">Voice Chat</li>
+            <li class="submenu-item">Voice Proximity</li>
+            <li class="submenu-item">Start Recording</li>
+            <li class="submenu-item">Stop Recording</li>
+            <li class="submenu-item">Debug</li>
+        </ul>
+        <ul id="submenu-saved" class="submenu-items" style="display: none;">
+            <li class="submenu-item">No Saved Vehicles</li> <!-- Placeholder -->
+        </ul>
+        <ul id="submenu-loadouts" class="submenu-items" style="display: none;">
+            <li class="submenu-item">No Loadouts</li> <!-- Placeholder -->
         </ul>
         <div id="page-info" class="page-info"></div>
     </div>
     <script>
         const menuContainer = document.getElementById('menu-container');
         let currentIndex = 0;
+        let currentSubmenu = null;
 
         // Menu data handling with timeout fallback
         window.addEventListener('message', (event) => {
@@ -176,7 +256,7 @@
                     const itemElement = document.createElement('li');
                     const originalText = item.name || `Item ${index + 1}`;
                     itemElement.textContent = originalText;
-                    itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
+                    itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
                     if (item.slider) {
                         const slider = document.createElement('input');
@@ -188,6 +268,7 @@
                         itemElement.appendChild(slider);
                     }
                     itemElement.dataset.originalText = originalText;
+                    if (item.hasSubmenu) itemElement.dataset.submenu = item.submenu;
                     itemsContainer.appendChild(itemElement);
                 });
                 currentIndex = Math.max(0, (event.data.selectedIndex || 1) - 1);
@@ -197,6 +278,8 @@
                 menuContainer.classList.add('open');
             } else if (event.data.type === 'close') {
                 menuContainer.classList.remove('open');
+                currentSubmenu = null;
+                updateSubmenuVisibility();
             }
         });
 
@@ -206,16 +289,20 @@
             if (itemsContainer.children.length === 1 && itemsContainer.children[0].textContent === 'Loading...') {
                 console.log('No update received, showing default items');
                 itemsContainer.innerHTML = '';
-                ['Godmode', 'ESP', 'NoClip'].forEach((name, index) => {
+                const tabs = ['self', 'online', 'vehicle', 'weapons', 'world', 'misc', 'saved', 'loadouts'];
+                tabs.forEach((tab, index) => {
                     const itemElement = document.createElement('li');
-                    itemElement.textContent = name;
-                    itemElement.className = `menu-item ${index === 0 ? 'selected' : ''}`;
+                    itemElement.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+                    itemElement.className = `menu-item has-submenu ${index === 0 ? 'selected' : ''}`;
                     itemElement.style.setProperty('--item-index', index);
-                    itemElement.dataset.originalText = name;
+                    itemElement.dataset.submenu = tab;
+                    itemElement.dataset.originalText = tab.charAt(0).toUpperCase() + tab.slice(1);
                     itemsContainer.appendChild(itemElement);
                 });
                 currentIndex = 0;
+                currentSubmenu = 'self';
                 updateSelection();
+                updateSubmenuVisibility();
             }
         }, 2000);
 
@@ -231,13 +318,37 @@
                 items[currentIndex].classList.add('selected');
                 items[currentIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 console.log('Selected item:', items[currentIndex].textContent);
+                if (items[currentIndex].dataset.submenu) {
+                    currentSubmenu = items[currentIndex].dataset.submenu;
+                    updateSubmenuVisibility();
+                }
+            }
+        }
+
+        // Update submenu visibility
+        function updateSubmenuVisibility() {
+            const submenus = document.querySelectorAll('.submenu-items');
+            submenus.forEach(submenu => {
+                submenu.style.display = submenu.id === `submenu-${currentSubmenu}` ? 'block' : 'none';
+            });
+            const itemsContainer = document.getElementById('menu-items');
+            const submenusArray = Array.from(submenus);
+            if (currentSubmenu) {
+                const activeSubmenu = document.getElementById(`submenu-${currentSubmenu}`);
+                if (activeSubmenu) {
+                    itemsContainer.style.display = 'none';
+                    activeSubmenu.style.display = 'block';
+                }
+            } else {
+                submenusArray.forEach(submenu => submenu.style.display = 'none');
+                itemsContainer.style.display = 'block';
             }
         }
 
         // Handle navigation and selection events
         window.addEventListener('navigate', (e) => {
             console.log('Navigate event:', e.detail);
-            const items = document.querySelectorAll('.menu-item');
+            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
             const newIndex = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
             if (newIndex !== currentIndex && items[newIndex]) {
                 currentIndex = newIndex;
@@ -247,26 +358,33 @@
 
         window.addEventListener('select', (e) => {
             console.log('Select event:', e.detail);
-            const items = document.querySelectorAll('.menu-item');
+            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
             const index = Math.min(Math.max(0, (e.detail.index || currentIndex + 1) - 1), items.length - 1);
             if (items[index]) {
                 currentIndex = index;
                 updateSelection();
+                if (items[index].classList.contains('has-submenu') && !currentSubmenu) {
+                    currentSubmenu = items[index].dataset.submenu;
+                    currentIndex = 0;
+                    updateSubmenuVisibility();
+                    updateSelection();
+                }
             }
         });
 
         window.addEventListener('back', () => {
             console.log('Back event');
-            const items = document.querySelectorAll('.menu-item');
-            if (items[0]) {
+            if (currentSubmenu) {
+                currentSubmenu = null;
                 currentIndex = 0;
+                updateSubmenuVisibility();
                 updateSelection();
             }
         });
 
         // Fallback keyboard controls for testing
         document.addEventListener('keydown', (e) => {
-            const items = document.querySelectorAll('.menu-item');
+            const items = currentSubmenu ? document.querySelectorAll(`#submenu-${currentSubmenu} .submenu-item`) : document.querySelectorAll('.menu-item');
             if (!items.length) return;
             let newIndex = currentIndex;
             if (e.key === 'ArrowUp' && currentIndex > 0) newIndex--;
@@ -274,9 +392,21 @@
             if (e.key === 'Enter') {
                 updateSelection();
                 console.log('Selected item:', items[currentIndex].textContent);
+                if (!currentSubmenu && items[currentIndex].classList.contains('has-submenu')) {
+                    currentSubmenu = items[currentIndex].dataset.submenu;
+                    currentIndex = 0;
+                    updateSubmenuVisibility();
+                    updateSelection();
+                }
             }
             if (e.key === 'Escape') {
-                currentIndex = 0;
+                if (currentSubmenu) {
+                    currentSubmenu = null;
+                    currentIndex = 0;
+                } else {
+                    currentIndex = 0;
+                }
+                updateSubmenuVisibility();
                 updateSelection();
             }
             if (newIndex !== currentIndex) {

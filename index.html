@@ -133,6 +133,20 @@
         input[type="range"]:disabled {
             opacity: 1;
         }
+        .notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
         @media (max-width: 600px) {
             .menu-container {
                 width: 280px;
@@ -153,96 +167,18 @@
         <div id="menu-title" class="menu-header">Vespura Menu</div>
         <div id="menu-subtitle" class="menu-subtitle"></div>
         <ul id="menu-items" class="menu-items">
-            <!-- Main Menu Tabs -->
-            <li class="menu-item has-submenu" data-submenu="self">Self</li>
-            <li class="menu-item has-submenu" data-submenu="online">Online</li>
-            <li class="menu-item has-submenu" data-submenu="vehicle">Vehicle</li>
-            <li class="menu-item has-submenu" data-submenu="weapons">Weapons</li>
-            <li class="menu-item has-submenu" data-submenu="world">World</li>
-            <li class="menu-item has-submenu" data-submenu="misc">Misc</li>
-            <li class="menu-item has-submenu" data-submenu="saved">Saved</li>
-            <li class="menu-item has-submenu" data-submenu="loadouts">Loadouts</li>
-        </ul>
-        <!-- Submenus (hidden by default, shown via JavaScript) -->
-        <ul id="submenu-self" class="submenu-items" style="display: none;">
-            <li class="submenu-item">Godmode</li>
-            <li class="submenu-item">Stamina</li>
-            <li class="submenu-item">Fast Run</li>
-            <li class="submenu-item">Fast Swim</li>
-            <li class="submenu-item">Super Jump</li>
-            <li class="submenu-item">No Ragdoll</li>
-            <li class="submenu-item">Invisible</li>
-            <li class="submenu-item">Spawn by Name</li>
-            <li class="submenu-item">Random Outfit</li>
-            <li class="submenu-item">Change Hair</li>
-            <li class="submenu-item">Reset Ped</li>
-        </ul>
-        <ul id="submenu-online" class="submenu-items" style="display: none;">
-            <li class="submenu-item">ESP</li>
-            <li class="submenu-item">No Clip</li>
-            <li class="submenu-item">Teleport to Waypoint</li>
-        </ul>
-        <ul id="submenu-vehicle" class="submenu-items" style="display: none;">
-            <li class="submenu-item">Repair</li>
-            <li class="submenu-item">Clean</li>
-            <li class="submenu-item">Flip</li>
-            <li class="submenu-item">Engine On</li>
-            <li class="submenu-item">Fuel</li>
-            <li class="submenu-item">No Fall</li>
-            <li class="submenu-item">Speed Boost</li>
-            <li class="submenu-item">Max Upgrades</li>
-            <li class="submenu-item">Change Color</li>
-            <li class="submenu-item">Delete</li>
-            <li class="submenu-item">Open All Doors</li>
-            <li class="submenu-item">Close All Doors</li>
-            <li class="submenu-item">Roll Down Windows</li>
-            <li class="submenu-item">Roll Up Windows</li>
-            <li class="submenu-item">Save Vehicle</li>
-            <li class="submenu-item">Set Personal</li>
-            <li class="submenu-item">Spawn Personal</li>
-            <li class="submenu-item">Delete Personal</li>
-        </ul>
-        <ul id="submenu-weapons" class="submenu-items" style="display: none;">
-            <li class="submenu-item">Get All Weapons</li>
-            <li class="submenu-item">Remove Weapons</li>
-            <li class="submenu-item">Infinite Ammo</li>
-            <li class="submenu-item">No Reload</li>
-            <li class="submenu-item">Save Loadout</li>
-            <li class="submenu-item">Spawn Specific Loadout</li>
-            <li class="submenu-item">Delete Loadout</li>
-        </ul>
-        <ul id="submenu-world" class="submenu-items" style="display: none;">
-            <li class="submenu-item">Freeze Time</li>
-            <li class="submenu-item">Sync Time</li>
-            <li class="submenu-item">Set Time</li>
-            <li class="submenu-item">Weather</li>
-            <li class="submenu-item">Never Wanted</li>
-            <li class="submenu-item">Ignored</li>
-            <li class="submenu-item">Parachutes</li>
-            <li class="submenu-item">Auto Clean</li>
-            <li class="submenu-item">PVP</li>
-        </ul>
-        <ul id="submenu-misc" class="submenu-items" style="display: none;">
-            <li class="submenu-item">Voice Chat</li>
-            <li class="submenu-item">Voice Proximity</li>
-            <li class="submenu-item">Start Recording</li>
-            <li class="submenu-item">Stop Recording</li>
-            <li class="submenu-item">Debug</li>
-        </ul>
-        <ul id="submenu-saved" class="submenu-items" style="display: none;">
-            <li class="submenu-item">No Saved Vehicles</li> <!-- Placeholder -->
-        </ul>
-        <ul id="submenu-loadouts" class="submenu-items" style="display: none;">
-            <li class="submenu-item">No Loadouts</li> <!-- Placeholder -->
+            <li class="menu-item">Loading...</li>
         </ul>
         <div id="page-info" class="page-info"></div>
     </div>
+    <div id="notification" class="notification"></div>
     <script>
         const menuContainer = document.getElementById('menu-container');
+        const notification = document.getElementById('notification');
         let currentIndex = 0;
         let currentSubmenu = null;
 
-        // Menu data handling with timeout fallback
+        // Menu data handling
         window.addEventListener('message', (event) => {
             console.log('Message received:', event.data);
             if (event.data.type === 'update') {
@@ -274,35 +210,24 @@
                 currentIndex = Math.max(0, (event.data.selectedIndex || 1) - 1);
                 updateSelection();
                 menuContainer.classList.add('open');
+                hideNotification();
             } else if (event.data.type === 'open') {
                 menuContainer.classList.add('open');
             } else if (event.data.type === 'close') {
                 menuContainer.classList.remove('open');
                 currentSubmenu = null;
                 updateSubmenuVisibility();
+            } else if (event.data.type === 'notify') {
+                showNotification(event.data.message);
             }
         });
 
-        // Fallback to show default items if no update after 2 seconds
+        // Request update if no data received
         setTimeout(() => {
             const itemsContainer = document.getElementById('menu-items');
             if (itemsContainer.children.length === 1 && itemsContainer.children[0].textContent === 'Loading...') {
-                console.log('No update received, showing default items');
-                itemsContainer.innerHTML = '';
-                const tabs = ['self', 'online', 'vehicle', 'weapons', 'world', 'misc', 'saved', 'loadouts'];
-                tabs.forEach((tab, index) => {
-                    const itemElement = document.createElement('li');
-                    itemElement.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
-                    itemElement.className = `menu-item has-submenu ${index === 0 ? 'selected' : ''}`;
-                    itemElement.style.setProperty('--item-index', index);
-                    itemElement.dataset.submenu = tab;
-                    itemElement.dataset.originalText = tab.charAt(0).toUpperCase() + tab.slice(1);
-                    itemsContainer.appendChild(itemElement);
-                });
-                currentIndex = 0;
-                currentSubmenu = 'self';
-                updateSelection();
-                updateSubmenuVisibility();
+                console.log('No update received, requesting update');
+                window.parent.postMessage({ type: 'requestUpdate' }, '*');
             }
         }, 2000);
 
@@ -414,6 +339,17 @@
                 updateSelection();
             }
         });
+
+        // Notification functions
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(hideNotification, 5000); // Auto-hide after 5 seconds
+        }
+
+        function hideNotification() {
+            notification.style.display = 'none';
+        }
     </script>
 </body>
 </html>

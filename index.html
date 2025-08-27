@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vespura Menu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             background: transparent;
-            color: #ffffff;
-            font-family: 'Roboto', sans-serif;
+            color: #e0e0e0;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             display: flex;
@@ -19,37 +19,42 @@
             overflow: hidden;
         }
         .menu-container {
-            width: 300px;
-            max-height: 70vh;
-            background: rgba(30, 30, 30, 0.8); /* Semi-transparent background */
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            width: 320px;
+            max-height: 75vh;
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px); /* Glassmorphism effect */
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             margin: 20px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             opacity: 0;
-            transform: translateX(50px);
-            transition: opacity 0.5s ease, transform 0.5s ease; /* Cool slide-in animation */
+            transform: translateX(100px) scale(0.9);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-container.open {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateX(0) scale(1);
         }
         .menu-header {
-            background: linear-gradient(90deg, #2978b9, #4a90e2);
-            padding: 12px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            padding: 14px;
             text-align: center;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         .menu-subtitle {
-            background: rgba(60, 60, 60, 0.9);
-            padding: 6px;
-            font-size: 12px;
+            background: rgba(30, 30, 40, 0.9);
+            padding: 8px;
+            font-size: 13px;
             text-align: center;
-            border-bottom: 1px solid #555;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
         }
         .menu-items {
             list-style: none;
@@ -57,50 +62,74 @@
             margin: 0;
             flex-grow: 1;
             overflow-y: auto;
+            scrollbar-width: thin;
         }
         .menu-item {
-            padding: 10px 12px;
+            padding: 12px 14px;
             cursor: pointer;
-            background: rgba(40, 40, 40, 0.7);
-            border-bottom: 1px solid #444;
-            transition: background 0.2s ease; /* Simplified transition */
+            background: rgba(40, 40, 50, 0.7);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateX(20px);
+            animation: slideIn 0.3s forwards;
+        }
+        .menu-item:nth-child(n) {
+            animation-delay: calc(0.05s * var(--item-index));
+        }
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         .menu-item:hover {
-            background: rgba(74, 74, 74, 0.9);
+            background: rgba(60, 60, 80, 0.9);
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
         .menu-item.selected {
-            background: linear-gradient(90deg, #2978b9, #4a90e2);
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
             color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1.02); }
+            50% { transform: scale(1.05); }
         }
         .toggle-enabled::after {
             content: " [ON]";
-            color: #4caf50;
-            font-weight: bold;
+            color: #22c55e;
+            font-weight: 600;
         }
         .toggle-disabled::after {
             content: " [OFF]";
-            color: #f44336;
-            font-weight: bold;
+            color: #ef4444;
+            font-weight: 600;
         }
         .has-submenu::after {
             content: " →";
             float: right;
             font-size: 14px;
+            color: #60a5fa;
         }
         .page-info {
-            padding: 6px 12px;
+            padding: 8px 14px;
             text-align: right;
-            font-size: 11px;
-            background: rgba(60, 60, 60, 0.9);
-            border-top: 1px solid #555;
+            font-size: 12px;
+            background: rgba(30, 30, 40, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #a0a0a0;
         }
         /* Scrollbar styling */
         .menu-items::-webkit-scrollbar {
-            width: 5px;
+            width: 6px;
         }
         .menu-items::-webkit-scrollbar-thumb {
-            background: #2978b9;
-            border-radius: 8px;
+            background: linear-gradient(180deg, #3b82f6, #1e3a8a);
+            border-radius: 10px;
+            box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
         }
         .menu-items::-webkit-scrollbar-track {
             background: transparent;
@@ -109,31 +138,40 @@
         input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
-            height: 5px;
-            background: #d3d3d3;
+            height: 6px;
+            background: linear-gradient(90deg, #4b5563, #9ca3af);
+            border-radius: 5px;
             outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-            margin-top: 5px;
+            margin-top: 8px;
+            transition: background 0.2s ease;
         }
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 10px;
-            height: 10px;
-            background: #4a90e2;
-            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            background: #3b82f6;
             border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+            transition: transform 0.2s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
         input[type="range"]::-moz-range-thumb {
-            width: 10px;
-            height: 10px;
-            background: #4a90e2;
-            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            background: #3b82f6;
             border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+            transition: transform 0.2s ease;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.2);
         }
         input[type="range"]:disabled {
-            opacity: 1; /* Keep visible even if disabled */
+            opacity: 1;
         }
     </style>
 </head>
@@ -149,30 +187,32 @@
 
         // Menu data handling
         window.addEventListener('message', (event) => {
-            if (event.data.type === 'updateMenu') {
-                document.getElementById('menu-title').textContent = event.data.title;
-                document.getElementById('menu-subtitle').textContent = event.data.subtitle;
-                document.getElementById('page-info').textContent = event.data.pageInfo;
+            if (event.data.type === 'update') {
+                const menuData = event.data.menu;
+                document.getElementById('menu-title').textContent = menuData.title;
+                document.getElementById('menu-subtitle').textContent = menuData.subtitle;
+                document.getElementById('page-info').textContent = `Page ${Math.floor(event.data.scrollOffset / 10) + 1}`;
                 const itemsContainer = document.getElementById('menu-items');
                 itemsContainer.innerHTML = '';
-                event.data.items.forEach((item) => {
+                menuData.items.forEach((item, index) => {
                     const itemElement = document.createElement('li');
-                    itemElement.className = `menu-item ${item.isSelected ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
+                    itemElement.className = `menu-item ${index + 1 === event.data.selectedIndex ? 'selected' : ''} ${item.toggle ? (item.state ? 'toggle-enabled' : 'toggle-disabled') : ''} ${item.hasSubmenu ? 'has-submenu' : ''}`;
+                    itemElement.style.setProperty('--item-index', index);
                     itemElement.textContent = item.name;
                     if (item.slider) {
                         const slider = document.createElement('input');
                         slider.type = 'range';
-                        slider.min = item.min;
-                        slider.max = item.max;
-                        slider.value = item.value;
-                        slider.disabled = true; // Visual only, no interaction
+                        slider.min = 100;
+                        slider.max = 5000;
+                        slider.value = item.value || 2000;
+                        slider.disabled = true;
                         itemElement.appendChild(slider);
                     }
                     itemsContainer.appendChild(itemElement);
                 });
-            } else if (event.data.type === 'openMenu') {
+            } else if (event.data.type === 'open') {
                 menuContainer.classList.add('open');
-            } else if (event.data.type === 'closeMenu') {
+            } else if (event.data.type === 'close') {
                 menuContainer.classList.remove('open');
             }
         });
@@ -182,15 +222,16 @@
             const selectedItems = document.querySelectorAll('.menu-item.selected');
             selectedItems.forEach(item => item.classList.remove('selected'));
             const items = document.querySelectorAll('.menu-item');
-            const index = Math.min(Math.max(0, e.detail.index || 0), items.length - 1);
+            const index = Math.min(Math.max(0, e.detail.index - 1), items.length - 1);
             if (items[index]) {
                 items[index].classList.add('selected');
+                items[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         });
 
         window.addEventListener('select', (e) => {
             const items = document.querySelectorAll('.menu-item');
-            const index = e.detail.index;
+            const index = e.detail.index - 1;
             if (items[index]) {
                 items[index].classList.add('selected');
             }
@@ -202,6 +243,7 @@
             const items = document.querySelectorAll('.menu-item');
             if (items[0]) {
                 items[0].classList.add('selected');
+                items[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         });
     </script>

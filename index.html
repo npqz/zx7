@@ -239,9 +239,12 @@
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
                     toggleInput.addEventListener('change', () => {
-                        espEnabled = toggleInput.checked;
+                        if (item.name === 'Enable ESP') {
+                            espEnabled = toggleInput.checked;
+                            sendToggleMessage('Enable ESP', espEnabled);
+                        }
+                        // Add handlers for other toggles if needed (e.g., God Mode, Speed Hack)
                         document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
-                        sendToggleMessage(item.name, espEnabled); // Notify Lua of toggle change
                     });
                     toggleInput.disabled = !item.interactive;
 
@@ -279,7 +282,7 @@
             window.parent.postMessage(JSON.stringify({ type: 'toggle', name: itemName, state: state }), '*');
         }
 
-        // Handle navigation events (placeholder for key inputs)
+        // Handle navigation events
         window.addEventListener('navigate', (event) => {
             const direction = event.detail.direction;
             const menuItems = document.querySelectorAll('.menu-item');
@@ -297,9 +300,11 @@
             if (currentItems[index].toggle) {
                 currentItems[index].state = !currentItems[index].state;
                 document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
-                espEnabled = currentItems[index].state;
+                if (currentItems[index].name === 'Enable ESP') {
+                    espEnabled = currentItems[index].state;
+                    sendToggleMessage('Enable ESP', espEnabled);
+                }
                 document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
-                sendToggleMessage(currentItems[index].name, espEnabled); // Notify Lua
             }
         });
 

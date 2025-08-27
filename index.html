@@ -2,139 +2,110 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vespura vMenu</title>
+  <title>vMenu Style</title>
   <style>
     body {
       margin: 0;
       padding: 0;
-      background: transparent;
       font-family: Arial, sans-serif;
-      color: white;
+      background: rgba(0, 0, 0, 0.3);
+      height: 100vh;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
     }
 
-    #menu {
-      position: absolute;
-      top: 20%;
-      left: 50px;
-      width: 320px;
-      background: rgba(0,0,0,0.85);
+    .menu {
+      background: rgba(0, 0, 0, 0.85);
       border: 2px solid #3498db;
-      border-radius: 4px;
+      border-radius: 6px;
+      width: 280px;
       padding: 8px;
-      display: none;
+      margin-left: 50px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      animation: fadeIn 0.2s ease-in-out;
     }
 
-    #menu h1 {
-      margin: 0;
-      padding: 6px;
+    .menu-header {
       background: #3498db;
+      padding: 8px;
+      border-radius: 3px;
+      font-weight: bold;
+      text-align: center;
       font-size: 18px;
-      border-radius: 2px;
-      text-align: center;
+      margin-bottom: 8px;
     }
 
-    #menu h2 {
-      margin: 4px 0;
-      font-size: 13px;
-      color: #aaa;
-      text-align: center;
-    }
-
-    .item {
-      padding: 10px;
-      margin: 2px 0;
+    .menu button {
+      display: block;
+      width: 100%;
       background: rgba(255,255,255,0.05);
+      border: none;
+      color: #fff;
+      text-align: left;
+      padding: 10px;
+      margin: 4px 0;
+      font-size: 15px;
       cursor: pointer;
+      transition: 0.15s;
       border-radius: 3px;
     }
 
-    .item:hover, .item.active {
+    .menu button:hover, 
+    .menu button.active {
       background: #3498db;
     }
 
-    .toggleOn { color: #2ecc71; float: right; }
-    .toggleOff { color: #e74c3c; float: right; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
-  <div id="menu">
-    <h1 id="menuTitle">Menu</h1>
-    <h2 id="menuSubtitle"></h2>
-    <div id="menuItems"></div>
+  <div class="menu" id="menu">
+    <div class="menu-header">Main Menu</div>
+    <button onclick="selectOption('vehicles')">Vehicles</button>
+    <button onclick="selectOption('weapons')">Weapons</button>
+    <button onclick="selectOption('player')">Player Options</button>
+    <button onclick="selectOption('settings')">Settings</button>
+    <button onclick="closeMenu()">Close</button>
   </div>
 
   <script>
-    const menuEl = document.getElementById("menu");
-    const titleEl = document.getElementById("menuTitle");
-    const subtitleEl = document.getElementById("menuSubtitle");
-    const itemsEl = document.getElementById("menuItems");
-    let selectedIndex = 0;
-
-    function renderMenu(data) {
-      if (!data) return;
-
-      titleEl.textContent = data.title || "Menu";
-      subtitleEl.textContent = data.subtitle || "";
-
-      itemsEl.innerHTML = "";
-      (data.items || []).forEach((item, i) => {
-        const div = document.createElement("div");
-        div.className = "item" + (i === selectedIndex ? " active" : "");
-        div.textContent = item.name;
-
-        // show toggle state if exists
-        if (item.toggle) {
-          const span = document.createElement("span");
-          span.className = item.state ? "toggleOn" : "toggleOff";
-          span.textContent = item.state ? "ON" : "OFF";
-          div.appendChild(span);
-        }
-
-        itemsEl.appendChild(div);
-      });
-
-      menuEl.style.display = "block";
-    }
-
-    function updateSelection() {
-      [...itemsEl.children].forEach((el, i) => {
-        el.classList.toggle("active", i === selectedIndex);
+    function selectOption(option) {
+      fetch(`https://${GetParentResourceName()}/menuSelect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({ option: option })
       });
     }
 
-    // Messages from Lua
-    window.addEventListener("message", (event) => {
-      const data = event.data;
-      if (data.type === "showMenu") {
-        renderMenu(data.menu);
-      } else if (data.type === "hideMenu") {
-        menuEl.style.display = "none";
-      }
-    });
+    function closeMenu() {
+      fetch(`https://${GetParentResourceName()}/closeMenu`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' }
+      });
+    }
 
-    // Keyboard nav (arrow keys + enter + backspace)
+    // highlight first option by default
+    let buttons = document.querySelectorAll(".menu button");
+    let index = 0;
+    buttons[index].classList.add("active");
+
     document.addEventListener("keydown", (e) => {
-      const children = [...itemsEl.children];
-      if (!children.length) return;
-
       if (e.key === "ArrowDown") {
-        selectedIndex = (selectedIndex + 1) % children.length;
-        updateSelection();
+        buttons[index].classList.remove("active");
+        index = (index + 1) % buttons.length;
+        buttons[index].classList.add("active");
       } else if (e.key === "ArrowUp") {
-        selectedIndex = (selectedIndex - 1 + children.length) % children.length;
-        updateSelection();
+        buttons[index].classList.remove("active");
+        index = (index - 1 + buttons.length) % buttons.length;
+        buttons[index].classList.add("active");
       } else if (e.key === "Enter") {
-        const item = (event.data && event.data.items) ? event.data.items[selectedIndex] : null;
-        fetch(`https://${GetParentResourceName()}/menuSelect`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-          body: JSON.stringify({ index: selectedIndex })
-        });
-      } else if (e.key === "Backspace") {
-        fetch(`https://${GetParentResourceName()}/menuBack`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=UTF-8' }
-        });
+        buttons[index].click();
+      } else if (e.key === "Escape") {
+        closeMenu();
       }
     });
   </script>

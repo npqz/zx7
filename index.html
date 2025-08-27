@@ -16,9 +16,8 @@
         }
         .menu-container {
             position: absolute;
-            top: 50%;
-            left: 20px; /* Moved to left side like vMenu */
-            transform: translateY(-50%);
+            top: 20px; /* Position at top */
+            right: 20px; /* Position at right */
             width: 300px; /* Narrower width for compact look */
             min-height: 200px;
             max-height: 80vh;
@@ -33,11 +32,11 @@
             z-index: 1000;
         }
         .menu-container.open {
-            transform: translateY(-50%) translateX(0);
+            transform: translateX(0);
             opacity: 1;
         }
         .menu-container.closed {
-            transform: translateY(-50%) translateX(-320px); /* Slide off-screen to the left */
+            transform: translateX(320px); /* Slide off-screen to the right */
             opacity: 0;
         }
         .menu-header {
@@ -189,7 +188,8 @@
                 document.getElementById('menu-container').classList.remove('open');
                 document.getElementById('menu-container').classList.add('closed');
             } else if (data.type === 'updateMenu') {
-                document.getElementById('menu-header').textContent = data.title;
+                // Update header to show playerName + "Vmenu"
+                document.getElementById('menu-header').textContent = (data.playerName || "Player") + " Vmenu";
                 document.getElementById('menu-subtitle').textContent = data.subtitle;
                 document.getElementById('page-info').textContent = data.pageInfo;
                 const menuItems = document.getElementById('menu-items');

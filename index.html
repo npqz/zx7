@@ -189,7 +189,7 @@
         #menu-items::-webkit-scrollbar-thumb {
             background: #22d3ee;
             border-radius: 5px;
-            box-shadow: 0 0 5px RGBA(34, 211, 238, 0.5);
+            box-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
         }
         #menu-items::-webkit-scrollbar-thumb:hover {
             background: #0891b2;
@@ -292,6 +292,9 @@
                 case 'openMenu':
                     document.getElementById('menu-container').classList.remove('menu-hidden');
                     document.getElementById('menu-container').classList.add('menu-visible');
+                    // Re-apply selection when menu is reopened
+                    const menuItems = document.querySelectorAll('.menu-item');
+                    updateSelection(menuItems);
                     break;
                 case 'closeMenu':
                     document.getElementById('menu-container').classList.remove('menu-visible');
@@ -320,9 +323,14 @@
             menuItemsContainer.innerHTML = '';
             currentItems = data.items || [];
 
+            // Ensure currentSelectedIndex is within bounds
+            if (currentSelectedIndex >= currentItems.length) {
+                currentSelectedIndex = Math.max(0, currentItems.length - 1);
+            }
+
             currentItems.forEach((item, index) => {
                 const itemElement = document.createElement('div');
-                itemElement.className = `menu-item ${item.isSelected ? 'selected' : ''}`;
+                itemElement.className = `menu-item ${index === currentSelectedIndex ? 'selected' : ''}`;
                 
                 const nameElement = document.createElement('span');
                 nameElement.textContent = item.name;
@@ -365,6 +373,12 @@
 
                 menuItemsContainer.appendChild(itemElement);
             });
+
+            // Scroll to the selected item
+            const menuItems = document.querySelectorAll('.menu-item');
+            if (menuItems[currentSelectedIndex]) {
+                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
         // Update ESP content

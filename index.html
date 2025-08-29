@@ -40,8 +40,9 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
-            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(45, 55, 72, 0.3));
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px); /* Fallback for some browsers */
             border: 2px solid #22d3ee;
             border-radius: 24px;
             box-shadow: 0 0 30px rgba(34, 211, 238, 0.7), inset 0 0 15px rgba(34, 211, 238, 0.4);
@@ -65,8 +66,9 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
-            backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(45, 55, 72, 0.3));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid #22d3ee;
             border-radius: 10px;
             padding: 12px;
@@ -114,10 +116,10 @@
             animation: fadeInScale 0.5s ease-in-out 0.2s;
         }
         #menu-items {
-            max-height: 550px;
+            max-height: 600px;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 12px 8px 12px 8px;
+            padding: 12px 8px;
             scroll-behavior: smooth;
             will-change: transform;
         }
@@ -132,7 +134,7 @@
             border-radius: 10px;
             transition: all 0.4s ease-in-out;
             animation: slideIn 0.3s ease-in-out forwards;
-            animation-delay: calc(0.04s * var(--index));
+            animation-delay: calc(0.03s * var(--index));
             opacity: 1;
         }
         .menu-item:hover {
@@ -242,8 +244,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
-            backdrop-filter: blur(15px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(45, 55, 72, 0.3));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 2px solid #22d3ee;
             border-radius: 16px;
             padding: 20px;
@@ -348,9 +351,11 @@
                 case 'openMenu':
                     document.getElementById('menu-container').classList.remove('menu-hidden');
                     document.getElementById('menu-container').classList.add('menu-visible');
-                    // Ensure selection is applied on reopen
-                    const menuItems = document.querySelectorAll('.menu-item');
-                    updateSelection(menuItems);
+                    // Ensure selection is applied after a slight delay to prevent glitch
+                    setTimeout(() => {
+                        const menuItems = document.querySelectorAll('.menu-item');
+                        updateSelection(menuItems);
+                    }, 100);
                     break;
                 case 'closeMenu':
                     document.getElementById('menu-container').classList.remove('menu-visible');
@@ -429,11 +434,13 @@
                 menuItemsContainer.appendChild(itemElement);
             });
 
-            // Ensure the selected item is visible
-            const menuItems = document.querySelectorAll('.menu-item');
-            if (menuItems[currentSelectedIndex]) {
-                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+            // Ensure the selected item is visible after rendering
+            setTimeout(() => {
+                const menuItems = document.querySelectorAll('.menu-item');
+                if (menuItems[currentSelectedIndex]) {
+                    menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 50);
         }
 
         // Update ESP content
@@ -488,8 +495,10 @@
                 document.getElementById('menu-container').classList.remove('menu-hidden');
                 document.getElementById('menu-container').classList.add('menu-visible');
                 // Re-apply selection after closing color picker
-                const menuItems = document.querySelectorAll('.menu-item');
-                updateSelection(menuItems);
+                setTimeout(() => {
+                    const menuItems = document.querySelectorAll('.menu-item');
+                    updateSelection(menuItems);
+                }, 100);
             } else {
                 alert('Please enter valid RGB values (0-255).');
             }
@@ -501,8 +510,10 @@
             document.getElementById('menu-container').classList.remove('menu-hidden');
             document.getElementById('menu-container').classList.add('menu-visible');
             // Re-apply selection after canceling color picker
-            const menuItems = document.querySelectorAll('.menu-item');
-            updateSelection(menuItems);
+            setTimeout(() => {
+                const menuItems = document.querySelectorAll('.menu-item');
+                updateSelection(menuItems);
+            }, 100);
             sendMessage({ type: 'cancelColor' });
         }
 
@@ -593,7 +604,9 @@
                 item.classList.remove('selected');
                 if (index === currentSelectedIndex) {
                     item.classList.add('selected');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    setTimeout(() => {
+                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }, 50);
                 }
             });
         }

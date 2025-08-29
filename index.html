@@ -319,13 +319,9 @@
         let currentSelectedIndex = 0;
         let espEnabled = false;
 
-        // Initialize menu state
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('menu-container').classList.add('menu-hidden');
-            document.getElementById('esp-container').classList.remove('esp-visible');
-            document.getElementById('color-picker-container').classList.remove('visible');
-            updateColorPreview();
-        });
+        // Keep track of menu history & last indexes
+        let menuHistory = [];
+        let lastSelectedIndexes = {};
 
         // Handle DUI messages
         window.addEventListener('message', (event) => {
@@ -334,7 +330,6 @@
                 case 'openMenu':
                     document.getElementById('menu-container').classList.remove('menu-hidden');
                     document.getElementById('menu-container').classList.add('menu-visible');
-                    // Re-apply selection when menu is reopened
                     const menuItems = document.querySelectorAll('.menu-item');
                     updateSelection(menuItems);
                     break;
@@ -365,7 +360,8 @@
             menuItemsContainer.innerHTML = '';
             currentItems = data.items || [];
 
-            // Ensure currentSelectedIndex is within bounds
+            if (currentItems.length === 0) return;
+
             if (currentSelectedIndex >= currentItems.length) {
                 currentSelectedIndex = Math.max(0, currentItems.length - 1);
             }
@@ -374,16 +370,15 @@
                 const itemElement = document.createElement('div');
                 itemElement.className = `menu-item ${index === currentSelectedIndex ? 'selected' : ''}`;
                 itemElement.style.setProperty('--index', index);
-                
+
                 const nameElement = document.createElement('span');
                 nameElement.textContent = item.name;
-
                 itemElement.appendChild(nameElement);
 
                 if (item.toggle) {
                     const toggleContainer = document.createElement('label');
                     toggleContainer.className = 'toggle-switch';
-                    
+
                     const toggleInput = document.createElement('input');
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
@@ -417,7 +412,6 @@
                 menuItemsContainer.appendChild(itemElement);
             });
 
-            // Scroll to the selected item
             const menuItems = document.querySelectorAll('.menu-item');
             if (menuItems[currentSelectedIndex]) {
                 menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -443,105 +437,77 @@
         }
 
         // Send toggle message to Lua
-        function sendToggleMessage(itemName, state) {
-            sendMessage({ type: 'toggle', name: itemName, state: state });
-        }
+function sendToggleMessage(option, state) {
+    sendMessage({ type: 'toggleOption', option, state });
+}
 
-        // Show color picker
-        function showColorPicker() {
-            document.getElementById('color-picker-container').classList.add('visible');
-            document.getElementById('menu-container').classList.add('menu-hidden');
-            document.getElementById('color-r').value = '';
-            document.getElementById('color-g').value = '';
-            document.getElementById('color-b').value = '';
-            updateColorPreview();
-        }
+// Update selection highlight
+function updateSelection(menuItems) {
+    menuItems.forEach((item, index) => {
+        item.classList.toggle('selected', index === currentSelectedIndex);
+    });
+}
 
-        // Update color preview
-        function updateColorPreview() {
-            const r = parseInt(document.getElementById('color-r').value) || 0;
-            const g = parseInt(document.getElementById('color-g').value) || 0;
-            const b = parseInt(document.getElementById('color-b').value) || 0;
-            document.getElementById('color-preview').style.backgroundColor = `rgb(${r},${g},${b})`;
-        }
+// Show color picker
+function showColorPicker() {
+    document.getElementById('color-picker-container').classList.add('visible');
+}
 
-        // Apply color
-        function applyColor() {
-            const r = parseInt(document.getElementById('color-r').value) || 0;
-            const g = parseInt(document.getElementById('color-g').value) || 0;
-            const b = parseInt(document.getElementById('color-b').value) || 0;
-            if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
-                sendMessage({ type: 'applyColor', r: r, g: g, b: b });
-                document.getElementById('color-picker-container').classList.remove('visible');
-                document.getElementById('menu-container').classList.remove('menu-hidden');
-                document.getElementById('menu-container').classList.add('menu-visible');
-            } else {
-                alert('Please enter valid RGB values (0-255).');
-            }
-        }
+// Apply color
+function applyColor() {
+    const r = parseInt(document.getElementById('color-r').value) || 0;
+    const g = parseInt(document.getElementById('color-g').value) || 0;
+    const b = parseInt(document.getElementById('color-b').value) || 0;
+    sendMessage({ type: 'applyColor', color: { r, g, b } });
+    cancelColor();
+}
 
-        // Cancel color selection
-        function cancelColor() {
-            document.getElementById('color-picker-container').classList.remove('visible');
-            document.getElementById('menu-container').classList.remove('menu-hidden');
-            document.getElementById('menu-container').classList.add('menu-visible');
-            sendMessage({ type: 'cancelColor' });
-        }
+// Cancel color picker
+function cancelColor() {
+    document.getElementById('color-picker-container').classList.remove('visible');
+}
 
-        // Update color preview on input change
-        document.getElementById('color-r').addEventListener('input', updateColorPreview);
-        document.getElementById('color-g').addEventListener('input', updateColorPreview);
-        document.getElementById('color-b').addEventListener('input', updateColorPreview);
+// Update color preview box
+function updateColorPreview() {
+    const r = parseInt(document.getElementById('color-r').value) || 0;
+    const g = parseInt(document.getElementById('color-g').value) || 0;
+    const b = parseInt(document.getElementById('color-b').value) || 0;
+    const preview = document.getElementById('color-preview');
+    if (preview) {
+        preview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    }
+}
 
-        // Handle navigation events
-        window.addEventListener('navigate', (event) => {
-            const direction = event.detail.direction;
-            const menuItems = document.querySelectorAll('.menu-item');
-            if (direction === 'up' && currentSelectedIndex > 0) currentSelectedIndex--;
-            if (direction === 'down' && currentSelectedIndex < menuItems.length - 1) currentSelectedIndex++;
-            updateSelection(menuItems);
-        });
+// Back event
+window.addEventListener('back', () => {
+    if (menuHistory.length > 0) {
+        const previousState = menuHistory.pop();
+        currentItems = previousState.items;
+        currentSelectedIndex = lastSelectedIndexes[previousState.title] || 0;
+        updateMenu();
+    }
+});
 
-        // Handle select event
-        window.addEventListener('select', (event) => {
-            const index = event.detail.index;
-            currentSelectedIndex = index;
-            const menuItems = document.querySelectorAll('.menu-item');
-            updateSelection(menuItems);
-            if (currentItems[index].toggle) {
-                currentItems[index].state = !currentItems[index].state;
-                document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
-                if (currentItems[index].name === 'Enable ESP') {
-                    espEnabled = currentItems[index].state;
-                    sendToggleMessage('Enable ESP', espEnabled);
-                }
-                document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
-            } else if (currentItems[index].name === 'Change Color') {
-                showColorPicker();
-                sendMessage({ type: 'requestColorInput' });
-            }
-        });
+// --- Keyboard Controls to Fire Custom Events ---
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { direction: 'up' } }));
+    }
+    if (e.key === 'ArrowDown') {
+        window.dispatchEvent(new CustomEvent('navigate', { detail: { direction: 'down' } }));
+    }
+    if (e.key === 'Enter') {
+        window.dispatchEvent(new CustomEvent('select'));
+    }
+    if (e.key === 'Backspace' || e.key === 'Escape') {
+        window.dispatchEvent(new CustomEvent('back'));
+    }
+});
 
-        // Handle back event
-        window.addEventListener('back', () => {
-            currentSelectedIndex = 0;
-            const menuItems = document.querySelectorAll('.menu-item');
-            updateSelection(menuItems);
-            document.getElementById('color-picker-container').classList.remove('visible');
-            document.getElementById('menu-container').classList.remove('menu-hidden');
-            document.getElementById('menu-container').classList.add('menu-visible');
-        });
-
-        // Update selection state
-        function updateSelection(menuItems) {
-            menuItems.forEach((item, index) => {
-                item.classList.remove('selected');
-                if (index === currentSelectedIndex) {
-                    item.classList.add('selected');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+// Initialize the menu UI
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('menu-container').classList.add('menu-hidden');
+    document.getElementById('esp-container').classList.remove('esp-visible');
+    document.getElementById('color-picker-container').classList.remove('visible');
+    updateColorPreview();
+});

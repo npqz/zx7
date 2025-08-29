@@ -11,8 +11,7 @@
             100% { opacity: 1; transform: scale(1); }
         }
         @keyframes slideIn {
-            0% { opacity: 0; transform: translateY(15px); }
-            80% { transform: translateY(-3px); }
+            0% { opacity: 0; transform: translateY(10px); }
             100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulseGlow {
@@ -41,10 +40,10 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.7));
-            backdrop-filter: blur(12px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
+            backdrop-filter: blur(20px);
             border: 2px solid #22d3ee;
-            border-radius: 20px;
+            border-radius: 24px;
             box-shadow: 0 0 30px rgba(34, 211, 238, 0.7), inset 0 0 15px rgba(34, 211, 238, 0.4);
             padding: 18px;
             width: 380px;
@@ -66,8 +65,8 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
+            backdrop-filter: blur(15px);
             border: 1px solid #22d3ee;
             border-radius: 10px;
             padding: 12px;
@@ -103,7 +102,7 @@
             font-size: 17px;
             font-weight: 700;
             color: #f0f9ff;
-            text-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
+            text-shadow: 0 0 6px rgba(34, 211, 238, 0.9);
             letter-spacing: 1px;
             animation: fadeInScale 0.5s ease-in-out;
         }
@@ -111,15 +110,16 @@
             font-size: 11px;
             color: #a5f3fc;
             margin-top: 4px;
-            text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
             animation: fadeInScale 0.5s ease-in-out 0.2s;
         }
         #menu-items {
-            max-height: 480px;
+            max-height: 550px;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 10px 8px;
+            padding: 12px 8px 12px 8px;
             scroll-behavior: smooth;
+            will-change: transform;
         }
         .menu-item {
             display: flex;
@@ -132,7 +132,7 @@
             border-radius: 10px;
             transition: all 0.4s ease-in-out;
             animation: slideIn 0.3s ease-in-out forwards;
-            animation-delay: calc(0.05s * var(--index));
+            animation-delay: calc(0.04s * var(--index));
             opacity: 1;
         }
         .menu-item:hover {
@@ -148,7 +148,7 @@
         }
         .menu-item span {
             color: #f0f9ff;
-            text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
+            text-shadow: 0 0 5px rgba(34, 211, 238, 0.7);
             font-size: 13px;
         }
         .toggle-switch {
@@ -200,7 +200,7 @@
             color: #a5f3fc;
             text-align: right;
             margin-top: 10px;
-            text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
             animation: fadeInScale 0.5s ease-in-out 0.3s;
         }
         #esp-container .esp-entry {
@@ -242,8 +242,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.7));
-            backdrop-filter: blur(12px);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4), rgba(45, 55, 72, 0.4));
+            backdrop-filter: blur(15px);
             border: 2px solid #22d3ee;
             border-radius: 16px;
             padding: 20px;
@@ -432,7 +432,7 @@
             // Ensure the selected item is visible
             const menuItems = document.querySelectorAll('.menu-item');
             if (menuItems[currentSelectedIndex]) {
-                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
 
@@ -552,8 +552,8 @@
                 }
             }
             updateSelection(menuItems);
-            setTimeout(() => { isNavigating = false; }, 100);
-        }, 200);
+            setTimeout(() => { isNavigating = false; }, 150);
+        }, 300);
 
         window.addEventListener('navigate', debouncedNavigate);
 
@@ -593,7 +593,7 @@
                 item.classList.remove('selected');
                 if (index === currentSelectedIndex) {
                     item.classList.add('selected');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             });
         }

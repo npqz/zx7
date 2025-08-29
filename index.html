@@ -6,6 +6,28 @@
     <title>Vespura Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(34, 211, 238, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(34, 211, 238, 0.8); }
+            100% { box-shadow: 0 0 5px rgba(34, 211, 238, 0.5); }
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
         body {
             font-family: 'Orbitron', sans-serif;
             background-color: transparent;
@@ -14,7 +36,7 @@
             overflow: hidden;
         }
         #menu-container {
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease;
+            transition: all 0.3s ease-in-out;
             position: absolute;
             top: 20px;
             right: 20px;
@@ -25,6 +47,18 @@
             padding: 12px;
             width: 320px;
             transform-origin: top right;
+        }
+        .menu-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.9);
+            animation: none;
+        }
+        .menu-visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+            animation: fadeInScale 0.3s ease-in-out;
         }
         #esp-container {
             position: absolute;
@@ -38,19 +72,10 @@
             z-index: 10;
             font-size: 14px;
             box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+            animation: fadeSlide 0.3s ease-in-out;
         }
         .esp-visible {
             display: block;
-        }
-        .menu-hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.95);
-        }
-        .menu-visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: scale(1);
         }
         #menu-header {
             background: linear-gradient(90deg, #22d3ee, #0891b2);
@@ -59,6 +84,7 @@
             margin-bottom: 12px;
             position: relative;
             overflow: hidden;
+            animation: pulseGlow 2s infinite;
         }
         #menu-header::before {
             content: '';
@@ -67,13 +93,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            animation: shine 3s infinite;
-        }
-        @keyframes shine {
-            0% { left: -100%; }
-            50% { left: 100%; }
-            100% { left: 100%; }
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 2.5s infinite;
         }
         #menu-title {
             font-size: 20px;
@@ -81,12 +102,14 @@
             color: #f0f9ff;
             text-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
             letter-spacing: 1px;
+            animation: fadeInScale 0.5s ease-in-out;
         }
         #menu-subtitle {
             font-size: 13px;
             color: #a5f3fc;
             margin-top: 4px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            animation: fadeInScale 0.5s ease-in-out 0.2s;
         }
         #menu-items {
             max-height: 400px;
@@ -103,16 +126,20 @@
             border: 1px solid rgba(34, 211, 238, 0.3);
             border-radius: 8px;
             transition: all 0.2s ease;
+            animation: slideIn 0.3s ease-in-out forwards;
+            animation-delay: calc(0.05s * var(--index));
         }
         .menu-item:hover {
             background: rgba(34, 211, 238, 0.15);
             transform: translateX(5px);
             box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+            animation: pulseGlow 1s infinite;
         }
         .selected {
             background: rgba(34, 211, 238, 0.3);
             border-color: #22d3ee;
             box-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
+            animation: pulseGlow 1.5s infinite;
         }
         .menu-item span {
             color: #f0f9ff;
@@ -138,7 +165,7 @@
             right: 0;
             bottom: 0;
             background-color: #334155;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             border-radius: 22px;
             border: 1px solid #22d3ee;
         }
@@ -150,12 +177,13 @@
             left: 2px;
             bottom: 2px;
             background-color: #22d3ee;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             border-radius: 50%;
             box-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
         }
         input:checked + .slider {
             background-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.8);
         }
         input:checked + .slider:before {
             transform: translateX(22px);
@@ -168,20 +196,22 @@
             text-align: right;
             margin-top: 10px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            animation: fadeInScale 0.5s ease-in-out 0.3s;
         }
         #esp-container .esp-entry {
             margin: 4px 0;
             color: #22d3ee;
             text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
+            animation: fadeSlide 0.3s ease-in-out;
         }
         #esp-container .esp-entry .distance {
             color: #facc15;
             margin-left: 8px;
             font-weight: 500;
         }
-        /* Custom scrollbar */
         #menu-items::-webkit-scrollbar {
             width: 10px;
+            transition: opacity 0.3s ease;
         }
         #menu-items::-webkit-scrollbar-track {
             background: transparent;
@@ -190,9 +220,11 @@
             background: #22d3ee;
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
+            transition: background 0.3s ease;
         }
         #menu-items::-webkit-scrollbar-thumb:hover {
             background: #0891b2;
+            box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
         }
         #color-picker-container {
             display: none;
@@ -206,9 +238,11 @@
             padding: 20px;
             box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
             z-index: 100;
+            animation: none;
         }
         #color-picker-container.visible {
             display: block;
+            animation: fadeInScale 0.3s ease-in-out;
         }
         #color-preview {
             width: 100%;
@@ -217,6 +251,10 @@
             border-radius: 8px;
             margin-bottom: 12px;
             box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
+            transition: box-shadow 0.3s ease;
+        }
+        #color-preview:hover {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.7);
         }
         .color-input {
             width: 100%;
@@ -228,10 +266,12 @@
             color: #f0f9ff;
             font-size: 14px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            transition: all 0.3s ease;
         }
         .color-input:focus {
             outline: none;
             box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+            transform: scale(1.02);
         }
         .color-button {
             background: linear-gradient(90deg, #22d3ee, #0891b2);
@@ -242,14 +282,16 @@
             margin: 6px 0;
             font-weight: 500;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
+            transition: all 0.3s ease;
         }
         .color-button:hover {
             background: linear-gradient(90deg, #0891b2, #0e7490);
             box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+            transform: scale(1.05);
         }
     </style>
 </head>
-<body class="bg-black bg-opacity-80">
+<body>
     <div id="menu-container" class="menu-hidden">
         <div id="menu-header">
             <h1 id="menu-title"></h1>
@@ -331,6 +373,7 @@
             currentItems.forEach((item, index) => {
                 const itemElement = document.createElement('div');
                 itemElement.className = `menu-item ${index === currentSelectedIndex ? 'selected' : ''}`;
+                itemElement.style.setProperty('--index', index);
                 
                 const nameElement = document.createElement('span');
                 nameElement.textContent = item.name;
@@ -385,9 +428,10 @@
         function updateESP(espData) {
             const espContainer = document.getElementById('esp-container');
             espContainer.innerHTML = '';
-            espData.forEach(entry => {
+            espData.forEach((entry, index) => {
                 const entryElement = document.createElement('div');
                 entryElement.className = 'esp-entry';
+                entryElement.style.animationDelay = `${index * 0.05}s`;
                 entryElement.innerHTML = `<span>${entry.name}</span><span class="distance">${entry.distance}m</span>`;
                 espContainer.appendChild(entryElement);
             });

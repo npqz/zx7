@@ -36,16 +36,16 @@
             overflow: hidden;
         }
         #menu-container {
-            transition: all 0.3s ease-in-out;
+            transition: all 0.4s ease-in-out;
             position: absolute;
             top: 20px;
             right: 20px;
             background: linear-gradient(135deg, #0f172a, #1e293b);
             border: 2px solid #22d3ee;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.6), inset 0 0 10px rgba(34, 211, 238, 0.3);
-            padding: 12px;
-            width: 320px;
+            border-radius: 16px;
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.7), inset 0 0 12px rgba(34, 211, 238, 0.4);
+            padding: 14px;
+            width: 360px;
             transform-origin: top right;
         }
         .menu-hidden {
@@ -58,7 +58,7 @@
             opacity: 1;
             pointer-events: auto;
             transform: scale(1);
-            animation: fadeInScale 0.3s ease-in-out;
+            animation: fadeInScale 0.4s ease-in-out;
         }
         #esp-container {
             position: absolute;
@@ -70,18 +70,18 @@
             padding: 10px;
             display: none;
             z-index: 10;
-            font-size: 14px;
+            font-size: 13px;
             box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
-            animation: fadeSlide 0.3s ease-in-out;
+            animation: fadeSlide 0.4s ease-in-out;
         }
         .esp-visible {
             display: block;
         }
         #menu-header {
             background: linear-gradient(90deg, #22d3ee, #0891b2);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 14px;
             position: relative;
             overflow: hidden;
             animation: pulseGlow 2s infinite;
@@ -97,7 +97,7 @@
             animation: shine 2.5s infinite;
         }
         #menu-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: #f0f9ff;
             text-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
@@ -105,46 +105,48 @@
             animation: fadeInScale 0.5s ease-in-out;
         }
         #menu-subtitle {
-            font-size: 13px;
+            font-size: 12px;
             color: #a5f3fc;
             margin-top: 4px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
             animation: fadeInScale 0.5s ease-in-out 0.2s;
         }
         #menu-items {
-            max-height: 400px;
+            max-height: 420px;
             overflow-y: auto;
-            padding-right: 6px;
+            padding-right: 8px;
+            scroll-behavior: smooth;
         }
         .menu-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 10px 12px;
             margin-bottom: 6px;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(34, 211, 238, 0.3);
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            animation: slideIn 0.3s ease-in-out forwards;
-            animation-delay: calc(0.05s * var(--index));
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.6));
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease-in-out forwards;
+            animation-delay: calc(0.06s * var(--index));
+            opacity: 1;
         }
         .menu-item:hover {
-            background: rgba(34, 211, 238, 0.15);
-            transform: translateX(5px);
-            box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(8, 145, 178, 0.2));
+            transform: translateX(6px);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
             animation: pulseGlow 1s infinite;
         }
         .selected {
-            background: rgba(34, 211, 238, 0.3);
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(8, 145, 178, 0.35));
             border-color: #22d3ee;
-            box-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.8);
             animation: pulseGlow 1.5s infinite;
         }
         .menu-item span {
             color: #f0f9ff;
             text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
-            font-size: 15px;
+            font-size: 14px;
         }
         .toggle-switch {
             position: relative;
@@ -191,7 +193,7 @@
             box-shadow: 0 0 5px rgba(16, 185, 129, 0.8);
         }
         #page-info {
-            font-size: 12px;
+            font-size: 11px;
             color: #a5f3fc;
             text-align: right;
             margin-top: 10px;
@@ -210,15 +212,16 @@
             font-weight: 500;
         }
         #menu-items::-webkit-scrollbar {
-            width: 10px;
+            width: 8px;
             transition: opacity 0.3s ease;
         }
         #menu-items::-webkit-scrollbar-track {
-            background: transparent;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
         }
         #menu-items::-webkit-scrollbar-thumb {
             background: #22d3ee;
-            border-radius: 5px;
+            border-radius: 10px;
             box-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
             transition: background 0.3s ease;
         }
@@ -239,6 +242,7 @@
             box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
             z-index: 100;
             animation: none;
+            width: 320px;
         }
         #color-picker-container.visible {
             display: block;
@@ -264,7 +268,7 @@
             border: 1px solid #22d3ee;
             border-radius: 6px;
             color: #f0f9ff;
-            font-size: 14px;
+            font-size: 13px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
             transition: all 0.3s ease;
         }
@@ -283,6 +287,7 @@
             font-weight: 500;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
             transition: all 0.3s ease;
+            font-size: 14px;
         }
         .color-button:hover {
             background: linear-gradient(90deg, #0891b2, #0e7490);
@@ -497,15 +502,18 @@
         window.addEventListener('navigate', (event) => {
             const direction = event.detail.direction;
             const menuItems = document.querySelectorAll('.menu-item');
+            const itemCount = menuItems.length;
+            if (itemCount === 0) return;
+
             if (direction === 'up') {
                 if (currentSelectedIndex > 0) {
                     currentSelectedIndex--;
                 } else {
-                    currentSelectedIndex = menuItems.length - 1; // Wrap to last item
+                    currentSelectedIndex = itemCount - 1; // Wrap to last item
                 }
             }
             if (direction === 'down') {
-                if (currentSelectedIndex < menuItems.length - 1) {
+                if (currentSelectedIndex < itemCount - 1) {
                     currentSelectedIndex++;
                 } else {
                     currentSelectedIndex = 0; // Wrap to first item

@@ -497,8 +497,20 @@
         window.addEventListener('navigate', (event) => {
             const direction = event.detail.direction;
             const menuItems = document.querySelectorAll('.menu-item');
-            if (direction === 'up' && currentSelectedIndex > 0) currentSelectedIndex--;
-            if (direction === 'down' && currentSelectedIndex < menuItems.length - 1) currentSelectedIndex++;
+            if (direction === 'up') {
+                if (currentSelectedIndex > 0) {
+                    currentSelectedIndex--;
+                } else {
+                    currentSelectedIndex = menuItems.length - 1; // Wrap to last item
+                }
+            }
+            if (direction === 'down') {
+                if (currentSelectedIndex < menuItems.length - 1) {
+                    currentSelectedIndex++;
+                } else {
+                    currentSelectedIndex = 0; // Wrap to first item
+                }
+            }
             updateSelection(menuItems);
         });
 

@@ -42,7 +42,7 @@
             right: 20px;
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.3), rgba(45, 55, 72, 0.3));
             backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px); /* Fallback for some browsers */
+            -webkit-backdrop-filter: blur(25px);
             border: 2px solid #22d3ee;
             border-radius: 24px;
             box-shadow: 0 0 30px rgba(34, 211, 238, 0.7), inset 0 0 15px rgba(34, 211, 238, 0.4);
@@ -121,7 +121,7 @@
             overflow-x: hidden;
             padding: 12px 8px;
             scroll-behavior: smooth;
-            will-change: transform;
+            will-change: scroll-position;
         }
         .menu-item {
             display: flex;
@@ -329,7 +329,6 @@
         <div class="color-button" onclick="applyColor()">Apply Color</div>
         <div class="color-button" onclick="cancelColor()">Cancel</div>
     </div>
-
     <script>
         let currentItems = [];
         let currentSelectedIndex = 0;
@@ -351,7 +350,7 @@
                 case 'openMenu':
                     document.getElementById('menu-container').classList.remove('menu-hidden');
                     document.getElementById('menu-container').classList.add('menu-visible');
-                    // Ensure selection is applied after a slight delay to prevent glitch
+                    // Ensure selection is applied after rendering
                     setTimeout(() => {
                         const menuItems = document.querySelectorAll('.menu-item');
                         updateSelection(menuItems);
@@ -379,14 +378,13 @@
             document.getElementById('menu-title').textContent = data.title || 'Vespura Menu';
             document.getElementById('menu-subtitle').textContent = data.subtitle || '';
             document.getElementById('page-info').textContent = data.pageInfo || '';
-
             const menuItemsContainer = document.getElementById('menu-items');
             menuItemsContainer.innerHTML = '';
             currentItems = data.items || [];
-
-            // Ensure currentSelectedIndex is within bounds
             currentSelectedIndex = Math.min(Math.max(0, currentSelectedIndex), currentItems.length - 1);
 
+            // Create a document fragment to improve rendering performance
+            const fragment = document.createDocumentFragment();
             currentItems.forEach((item, index) => {
                 const itemElement = document.createElement('div');
                 itemElement.className = `menu-item ${index === currentSelectedIndex ? 'selected' : ''}`;
@@ -394,13 +392,11 @@
                 
                 const nameElement = document.createElement('span');
                 nameElement.textContent = item.name;
-
                 itemElement.appendChild(nameElement);
 
                 if (item.toggle) {
                     const toggleContainer = document.createElement('label');
                     toggleContainer.className = 'toggle-switch';
-                    
                     const toggleInput = document.createElement('input');
                     toggleInput.type = 'checkbox';
                     toggleInput.checked = item.state;
@@ -412,10 +408,8 @@
                         document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
                     });
                     toggleInput.disabled = !item.interactive;
-
                     const slider = document.createElement('span');
                     slider.className = 'slider';
-
                     toggleContainer.appendChild(toggleInput);
                     toggleContainer.appendChild(slider);
                     itemElement.appendChild(toggleContainer);
@@ -430,15 +424,19 @@
                         sendMessage({ type: 'requestColorInput' });
                     });
                 }
-
-                menuItemsContainer.appendChild(itemElement);
+                fragment.appendChild(itemElement);
             });
+            menuItemsContainer.appendChild(fragment);
 
-            // Ensure the selected item is visible after rendering
+            // Ensure smooth scrolling to selected item
             setTimeout(() => {
                 const menuItems = document.querySelectorAll('.menu-item');
                 if (menuItems[currentSelectedIndex]) {
-                    menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    menuItems[currentSelectedIndex].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'nearest'
+                    });
                 }
             }, 50);
         }
@@ -447,13 +445,15 @@
         function updateESP(espData) {
             const espContainer = document.getElementById('esp-container');
             espContainer.innerHTML = '';
+            const fragment = document.createDocumentFragment();
             espData.forEach((entry, index) => {
                 const entryElement = document.createElement('div');
                 entryElement.className = 'esp-entry';
                 entryElement.style.animationDelay = `${index * 0.05}s`;
                 entryElement.innerHTML = `<span>${entry.name}</span><span class="distance">${entry.distance}m</span>`;
-                espContainer.appendChild(entryElement);
+                fragment.appendChild(entryElement);
             });
+            espContainer.appendChild(fragment);
         }
 
         // Send message to Lua
@@ -494,7 +494,6 @@
                 document.getElementById('color-picker-container').classList.remove('visible');
                 document.getElementById('menu-container').classList.remove('menu-hidden');
                 document.getElementById('menu-container').classList.add('menu-visible');
-                // Re-apply selection after closing color picker
                 setTimeout(() => {
                     const menuItems = document.querySelectorAll('.menu-item');
                     updateSelection(menuItems);
@@ -509,7 +508,6 @@
             document.getElementById('color-picker-container').classList.remove('visible');
             document.getElementById('menu-container').classList.remove('menu-hidden');
             document.getElementById('menu-container').classList.add('menu-visible');
-            // Re-apply selection after canceling color picker
             setTimeout(() => {
                 const menuItems = document.querySelectorAll('.menu-item');
                 updateSelection(menuItems);
@@ -539,7 +537,6 @@
         const debouncedNavigate = debounce((event) => {
             if (isNavigating) return;
             isNavigating = true;
-
             const direction = event.detail.direction;
             const menuItems = document.querySelectorAll('.menu-item');
             const itemCount = menuItems.length;
@@ -547,24 +544,26 @@
                 isNavigating = false;
                 return;
             }
-
+            const previousIndex = currentSelectedIndex;
             if (direction === 'up') {
-                if (currentSelectedIndex > 0) {
-                    currentSelectedIndex--;
-                } else {
-                    currentSelectedIndex = itemCount - 1; // Wrap to last item
-                }
+                currentSelectedIndex = (currentSelectedIndex > 0) ? currentSelectedIndex - 1 : itemCount - 1;
             }
             if (direction === 'down') {
-                if (currentSelectedIndex < itemCount - 1) {
-                    currentSelectedIndex++;
-                } else {
-                    currentSelectedIndex = 0; // Wrap to first item
-                }
+                currentSelectedIndex = (currentSelectedIndex < itemCount - 1) ? currentSelectedIndex + 1 : 0;
             }
             updateSelection(menuItems);
-            setTimeout(() => { isNavigating = false; }, 150);
-        }, 300);
+            // Smooth scroll to keep selected item in view
+            if (menuItems[currentSelectedIndex]) {
+                menuItems[currentSelectedIndex].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }
+            setTimeout(() => {
+                isNavigating = false;
+            }, 150);
+        }, 200);
 
         window.addEventListener('navigate', debouncedNavigate);
 
@@ -596,19 +595,29 @@
             document.getElementById('color-picker-container').classList.remove('visible');
             document.getElementById('menu-container').classList.remove('menu-hidden');
             document.getElementById('menu-container').classList.add('menu-visible');
+            // Ensure first item is visible
+            if (menuItems[0]) {
+                menuItems[0].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest'
+                });
+            }
         });
 
         // Update selection state
         function updateSelection(menuItems) {
             menuItems.forEach((item, index) => {
-                item.classList.remove('selected');
-                if (index === currentSelectedIndex) {
-                    item.classList.add('selected');
-                    setTimeout(() => {
-                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }, 50);
-                }
+                item.classList.toggle('selected', index === currentSelectedIndex);
             });
+            // Ensure the selected item is always in view
+            if (menuItems[currentSelectedIndex]) {
+                menuItems[currentSelectedIndex].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+            }
         }
     </script>
 </body>

@@ -11,8 +11,9 @@
             100% { opacity: 1; transform: scale(1); }
         }
         @keyframes slideIn {
-            0% { opacity: 0; transform: translateX(20px); }
-            100% { opacity: 1; transform: translateX(0); }
+            0% { opacity: 0; transform: translateY(15px); }
+            80% { transform: translateY(-3px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes pulseGlow {
             0% { box-shadow: 0 0 5px rgba(34, 211, 238, 0.5); }
@@ -36,16 +37,17 @@
             overflow: hidden;
         }
         #menu-container {
-            transition: all 0.4s ease-in-out;
+            transition: all 0.5s ease-in-out;
             position: absolute;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+            backdrop-filter: blur(10px);
             border: 2px solid #22d3ee;
             border-radius: 16px;
             box-shadow: 0 0 25px rgba(34, 211, 238, 0.7), inset 0 0 12px rgba(34, 211, 238, 0.4);
-            padding: 14px;
-            width: 360px;
+            padding: 16px;
+            width: 380px;
             transform-origin: top right;
         }
         .menu-hidden {
@@ -58,16 +60,17 @@
             opacity: 1;
             pointer-events: auto;
             transform: scale(1);
-            animation: fadeInScale 0.4s ease-in-out;
+            animation: fadeInScale 0.5s ease-in-out;
         }
         #esp-container {
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
             border: 1px solid #22d3ee;
             border-radius: 8px;
-            padding: 10px;
+            padding: 12px;
             display: none;
             z-index: 10;
             font-size: 13px;
@@ -81,7 +84,7 @@
             background: linear-gradient(90deg, #22d3ee, #0891b2);
             padding: 12px;
             border-radius: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             position: relative;
             overflow: hidden;
             animation: pulseGlow 2s infinite;
@@ -97,7 +100,7 @@
             animation: shine 2.5s infinite;
         }
         #menu-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 700;
             color: #f0f9ff;
             text-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
@@ -105,15 +108,16 @@
             animation: fadeInScale 0.5s ease-in-out;
         }
         #menu-subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: #a5f3fc;
             margin-top: 4px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
             animation: fadeInScale 0.5s ease-in-out 0.2s;
         }
         #menu-items {
-            max-height: 420px;
+            max-height: 440px;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-right: 8px;
             scroll-behavior: smooth;
         }
@@ -126,14 +130,13 @@
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.6));
             border: 1px solid rgba(34, 211, 238, 0.4);
             border-radius: 10px;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease-in-out;
             animation: slideIn 0.4s ease-in-out forwards;
             animation-delay: calc(0.06s * var(--index));
             opacity: 1;
         }
         .menu-item:hover {
             background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(8, 145, 178, 0.2));
-            transform: translateX(6px);
             box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
             animation: pulseGlow 1s infinite;
         }
@@ -146,7 +149,7 @@
         .menu-item span {
             color: #f0f9ff;
             text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
-            font-size: 14px;
+            font-size: 13px;
         }
         .toggle-switch {
             position: relative;
@@ -167,7 +170,7 @@
             right: 0;
             bottom: 0;
             background-color: #334155;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease-in-out;
             border-radius: 22px;
             border: 1px solid #22d3ee;
         }
@@ -179,7 +182,7 @@
             left: 2px;
             bottom: 2px;
             background-color: #22d3ee;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease-in-out;
             border-radius: 50%;
             box-shadow: 0 0 5px rgba(34, 211, 238, 0.8);
         }
@@ -193,7 +196,7 @@
             box-shadow: 0 0 5px rgba(16, 185, 129, 0.8);
         }
         #page-info {
-            font-size: 11px;
+            font-size: 10px;
             color: #a5f3fc;
             text-align: right;
             margin-top: 10px;
@@ -204,7 +207,7 @@
             margin: 4px 0;
             color: #22d3ee;
             text-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
-            animation: fadeSlide 0.3s ease-in-out;
+            animation: fadeSlide 0.4s ease-in-out;
         }
         #esp-container .esp-entry .distance {
             color: #facc15;
@@ -213,7 +216,8 @@
         }
         #menu-items::-webkit-scrollbar {
             width: 8px;
-            transition: opacity 0.3s ease;
+            height: 8px;
+            transition: opacity 0.4s ease-in-out;
         }
         #menu-items::-webkit-scrollbar-track {
             background: rgba(15, 23, 42, 0.5);
@@ -223,11 +227,14 @@
             background: #22d3ee;
             border-radius: 10px;
             box-shadow: 0 0 5px rgba(34, 211, 238, 0.5);
-            transition: background 0.3s ease;
+            transition: background 0.4s ease-in-out;
         }
         #menu-items::-webkit-scrollbar-thumb:hover {
             background: #0891b2;
             box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+        }
+        #menu-items::-webkit-scrollbar-corner {
+            background: transparent;
         }
         #color-picker-container {
             display: none;
@@ -235,18 +242,19 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
+            backdrop-filter: blur(10px);
             border: 2px solid #22d3ee;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
             z-index: 100;
             animation: none;
-            width: 320px;
+            width: 340px;
         }
         #color-picker-container.visible {
             display: block;
-            animation: fadeInScale 0.3s ease-in-out;
+            animation: fadeInScale 0.4s ease-in-out;
         }
         #color-preview {
             width: 100%;
@@ -255,7 +263,7 @@
             border-radius: 8px;
             margin-bottom: 12px;
             box-shadow: 0 0 10px rgba(34, 211, 238, 0.4);
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.4s ease-in-out;
         }
         #color-preview:hover {
             box-shadow: 0 0 15px rgba(34, 211, 238, 0.7);
@@ -270,7 +278,7 @@
             color: #f0f9ff;
             font-size: 13px;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
-            transition: all 0.3s ease;
+            transition: all 0.4s ease-in-out;
         }
         .color-input:focus {
             outline: none;
@@ -286,8 +294,8 @@
             margin: 6px 0;
             font-weight: 500;
             text-shadow: 0 0 3px rgba(34, 211, 238, 0.5);
-            transition: all 0.3s ease;
-            font-size: 14px;
+            transition: all 0.4s ease-in-out;
+            font-size: 13px;
         }
         .color-button:hover {
             background: linear-gradient(90deg, #0891b2, #0e7490);
@@ -339,7 +347,7 @@
                 case 'openMenu':
                     document.getElementById('menu-container').classList.remove('menu-hidden');
                     document.getElementById('menu-container').classList.add('menu-visible');
-                    // Re-apply selection when menu is reopened
+                    // Ensure selection is applied on reopen
                     const menuItems = document.querySelectorAll('.menu-item');
                     updateSelection(menuItems);
                     break;
@@ -371,9 +379,7 @@
             currentItems = data.items || [];
 
             // Ensure currentSelectedIndex is within bounds
-            if (currentSelectedIndex >= currentItems.length) {
-                currentSelectedIndex = Math.max(0, currentItems.length - 1);
-            }
+            currentSelectedIndex = Math.min(Math.max(0, currentSelectedIndex), currentItems.length - 1);
 
             currentItems.forEach((item, index) => {
                 const itemElement = document.createElement('div');
@@ -422,10 +428,10 @@
                 menuItemsContainer.appendChild(itemElement);
             });
 
-            // Scroll to the selected item
+            // Ensure the selected item is visible
             const menuItems = document.querySelectorAll('.menu-item');
             if (menuItems[currentSelectedIndex]) {
-                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                menuItems[currentSelectedIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -480,6 +486,9 @@
                 document.getElementById('color-picker-container').classList.remove('visible');
                 document.getElementById('menu-container').classList.remove('menu-hidden');
                 document.getElementById('menu-container').classList.add('menu-visible');
+                // Re-apply selection after closing color picker
+                const menuItems = document.querySelectorAll('.menu-item');
+                updateSelection(menuItems);
             } else {
                 alert('Please enter valid RGB values (0-255).');
             }
@@ -490,6 +499,9 @@
             document.getElementById('color-picker-container').classList.remove('visible');
             document.getElementById('menu-container').classList.remove('menu-hidden');
             document.getElementById('menu-container').classList.add('menu-visible');
+            // Re-apply selection after canceling color picker
+            const menuItems = document.querySelectorAll('.menu-item');
+            updateSelection(menuItems);
             sendMessage({ type: 'cancelColor' });
         }
 
@@ -558,7 +570,7 @@
                 item.classList.remove('selected');
                 if (index === currentSelectedIndex) {
                     item.classList.add('selected');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }

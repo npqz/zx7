@@ -11,14 +11,13 @@
             background-color: transparent;
             color: #ffffff;
             user-select: none;
-            overflow: hidden;
         }
         #menu-container {
             transition: opacity 0.3s ease-in-out;
             position: absolute;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, rgba(26,26,46,0.8), rgba(22,33,62,0.8));
             border: 2px solid #00aaff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
@@ -29,7 +28,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid #00aaff;
             border-radius: 4px;
             padding: 8px;
@@ -49,7 +48,7 @@
             pointer-events: auto;
         }
         #menu-header {
-            background: linear-gradient(90deg, #00aaff, #0077cc);
+            background: linear-gradient(90deg, rgba(0,170,255,0.8), rgba(0,119,204,0.8));
             padding: 8px;
             border-radius: 4px;
             margin-bottom: 10px;
@@ -77,16 +76,16 @@
             align-items: center;
             padding: 8px;
             margin-bottom: 4px;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.4);
             border-radius: 4px;
             transition: background-color 0.2s ease, transform 0.1s ease;
         }
         .menu-item:hover {
-            background-color: rgba(0, 170, 255, 0.2);
+            background-color: rgba(0, 170, 255, 0.3);
             transform: scale(1.02);
         }
         .selected {
-            background-color: rgba(0, 170, 255, 0.4);
+            background-color: rgba(0, 170, 255, 0.5);
             font-weight: bold;
         }
         .menu-item span {
@@ -163,20 +162,20 @@
         #menu-items::-webkit-scrollbar-thumb:hover {
             background: #0077cc;
         }
-        #color-picker-container {
+        #color-picker-container, #slider-container {
             display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background: linear-gradient(135deg, rgba(26,26,46,0.9), rgba(22,33,62,0.9));
             border: 2px solid #00aaff;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0,170,255,0.5);
             z-index: 100;
         }
-        #color-picker-container.visible {
+        #color-picker-container.visible, #slider-container.visible {
             display: block;
         }
         #color-preview {
@@ -206,9 +205,20 @@
         .color-button:hover {
             background: linear-gradient(90deg, #0077cc, #0055aa);
         }
+        #slider-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        #slider-value {
+            color: #b3e5fc;
+            text-align: center;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
-<body class="bg-black bg-opacity-0">
+<body>
     <div id="menu-container" class="menu-hidden">
         <div id="menu-header">
             <h1 id="menu-title"></h1>
@@ -230,17 +240,28 @@
         <div class="color-button" onclick="applyColor()">Apply Color</div>
         <div class="color-button" onclick="cancelColor()">Cancel</div>
     </div>
+    <div id="slider-container">
+        <h3 id="slider-title"></h3>
+        <input type="range" id="slider-input" class="w-full mb-4">
+        <p id="slider-value"></p>
+        <div class="flex justify-between">
+            <div class="color-button" onclick="applySlider()">Apply</div>
+            <div class="color-button" onclick="cancelSlider()">Cancel</div>
+        </div>
+    </div>
 
     <script>
         let currentItems = [];
         let currentSelectedIndex = 0;
         let espEnabled = false;
+        let currentSliderName = '';
 
         // Initialize menu state
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('menu-container').classList.add('menu-hidden');
             document.getElementById('esp-container').classList.remove('esp-visible');
             document.getElementById('color-picker-container').classList.remove('visible');
+            document.getElementById('slider-container').classList.remove('visible');
             updateColorPreview();
         });
 
@@ -256,6 +277,7 @@
                     document.getElementById('menu-container').classList.remove('menu-visible');
                     document.getElementById('menu-container').classList.add('menu-hidden');
                     document.getElementById('color-picker-container').classList.remove('visible');
+                    document.getElementById('slider-container').classList.remove('visible');
                     break;
                 case 'updateMenu':
                     updateMenu(data);
@@ -389,10 +411,74 @@
             sendMessage({ type: 'cancelColor' });
         }
 
-        // Update color preview on input change
+        // Show slider
+        function showSlider(item) {
+            currentSliderName = item.name;
+            let min = 0, max = 100, step = 1, value = 50;
+
+            if (item.name === 'Health Slider' || item.name === 'Armor Slider') {
+                max = 200;
+                value = 100;
+            } else if (item.name === 'Wanted Level Control') {
+                max = 5;
+                value = 0;
+            } else if (item.name === 'Custom Speed Multiplier' || item.name === 'Damage Multiplier') {
+                min = 1;
+                max = 10;
+                step = 0.1;
+                value = 1;
+            } else if (item.name === 'Gravity Control') {
+                min = 0;
+                max = 20;
+                step = 0.1;
+                value = 9.8;
+            } else if (item.name === 'Wind Speed') {
+                max = 50;
+                value = 0;
+            } else if (item.name === 'Fog Density' || item.name === 'Rain Intensity') {
+                max = 1;
+                step = 0.01;
+                value = 0;
+            }
+
+            document.getElementById('slider-title').textContent = item.name;
+            const sliderInput = document.getElementById('slider-input');
+            sliderInput.min = min;
+            sliderInput.max = max;
+            sliderInput.step = step;
+            sliderInput.value = value;
+            updateSliderValue();
+            document.getElementById('slider-container').classList.add('visible');
+            document.getElementById('menu-container').classList.add('menu-hidden');
+        }
+
+        // Update slider value display
+        function updateSliderValue() {
+            document.getElementById('slider-value').textContent = document.getElementById('slider-input').value;
+        }
+
+        // Apply slider
+        function applySlider() {
+            const value = document.getElementById('slider-input').value;
+            sendMessage({ type: 'applySlider', name: currentSliderName, value: value });
+            document.getElementById('slider-container').classList.remove('visible');
+            document.getElementById('menu-container').classList.remove('menu-hidden');
+            document.getElementById('menu-container').classList.add('menu-visible');
+        }
+
+        // Cancel slider
+        function cancelSlider() {
+            document.getElementById('slider-container').classList.remove('visible');
+            document.getElementById('menu-container').classList.remove('menu-hidden');
+            document.getElementById('menu-container').classList.add('menu-visible');
+            sendMessage({ type: 'cancelSlider', name: currentSliderName });
+        }
+
+        // Event listeners
         document.getElementById('color-r').addEventListener('input', updateColorPreview);
         document.getElementById('color-g').addEventListener('input', updateColorPreview);
         document.getElementById('color-b').addEventListener('input', updateColorPreview);
+        document.getElementById('slider-input').addEventListener('input', updateSliderValue);
 
         // Handle navigation events
         window.addEventListener('navigate', (event) => {
@@ -409,17 +495,20 @@
             currentSelectedIndex = index;
             const menuItems = document.querySelectorAll('.menu-item');
             updateSelection(menuItems);
-            if (currentItems[index].toggle) {
-                currentItems[index].state = !currentItems[index].state;
-                document.querySelectorAll('.toggle-switch input')[index].checked = currentItems[index].state;
-                if (currentItems[index].name === 'Enable ESP') {
-                    espEnabled = currentItems[index].state;
+            const item = currentItems[index];
+            if (item.toggle) {
+                item.state = !item.state;
+                document.querySelectorAll('.toggle-switch input')[index].checked = item.state;
+                if (item.name === 'Enable ESP') {
+                    espEnabled = item.state;
                     sendToggleMessage('Enable ESP', espEnabled);
                 }
                 document.getElementById('esp-container').classList.toggle('esp-visible', espEnabled);
-            } else if (currentItems[index].name === 'Change Color') {
+            } else if (item.name === 'Change Color') {
                 showColorPicker();
                 sendMessage({ type: 'requestColorInput' });
+            } else if (item.name.includes('Slider') || item.name.includes('Control') || item.name.includes('Multiplier')) {
+                showSlider(item);
             }
         });
 
@@ -429,6 +518,7 @@
             const menuItems = document.querySelectorAll('.menu-item');
             updateSelection(menuItems);
             document.getElementById('color-picker-container').classList.remove('visible');
+            document.getElementById('slider-container').classList.remove('visible');
             document.getElementById('menu-container').classList.remove('menu-hidden');
             document.getElementById('menu-container').classList.add('menu-visible');
         });

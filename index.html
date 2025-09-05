@@ -5,98 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vespura Menu</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: transparent;
-            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            background: transparent;
+            color: #e0e0ff;
             user-select: none;
+            overflow: hidden;
         }
         #menu-container {
-            transition: opacity 0.3s ease-in-out;
+            transition: all 0.4s ease-in-out;
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, rgba(26,26,46,0.8), rgba(22,33,62,0.8));
-            border: 2px solid #00aaff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
-            padding: 10px;
-            width: 300px;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(145deg, rgba(20, 20, 50, 0.9), rgba(10, 20, 60, 0.9));
+            border: 2px solid #00ffcc;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.6), inset 0 0 10px rgba(0, 255, 204, 0.3);
+            padding: 15px;
+            width: 320px;
+            backdrop-filter: blur(8px);
         }
         #esp-container {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #00aaff;
-            border-radius: 4px;
-            padding: 8px;
+            top: 30px;
+            left: 30px;
+            background: rgba(10, 10, 30, 0.7);
+            border: 1px solid #00ffcc;
+            border-radius: 8px;
+            padding: 10px;
             display: none;
             z-index: 10;
             font-size: 14px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
         }
         .esp-visible {
             display: block;
         }
         .menu-hidden {
             opacity: 0;
+            transform: translateY(20px);
             pointer-events: none;
         }
         .menu-visible {
             opacity: 1;
+            transform: translateY(0);
             pointer-events: auto;
         }
         #menu-header {
-            background: linear-gradient(90deg, rgba(0,170,255,0.8), rgba(0,119,204,0.8));
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ffcc, #0077ff);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
         #menu-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+            font-size: 20px;
+            font-weight: 700;
+            color: #e0e0ff;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
         }
         #menu-subtitle {
             font-size: 12px;
-            color: #b3e5fc;
-            margin-top: 2px;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+            color: #80d4ff;
+            margin-top: 4px;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
         }
         #menu-items {
             max-height: 400px;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 8px;
         }
         .menu-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px;
-            margin-bottom: 4px;
-            background-color: rgba(0, 0, 0, 0.4);
-            border-radius: 4px;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            padding: 10px;
+            margin-bottom: 6px;
+            background: rgba(20, 20, 50, 0.7);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 204, 0.2);
         }
         .menu-item:hover {
-            background-color: rgba(0, 170, 255, 0.3);
-            transform: scale(1.02);
+            background: rgba(0, 255, 204, 0.2);
+            transform: translateX(5px);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
         }
         .selected {
-            background-color: rgba(0, 170, 255, 0.5);
-            font-weight: bold;
+            background: linear-gradient(90deg, rgba(0, 255, 204, 0.5), rgba(0, 119, 255, 0.5));
+            font-weight: 700;
+            border: 1px solid #00ffcc;
         }
         .menu-item span {
-            color: #ffffff;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+            color: #e0e0ff;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
         }
         .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 40px;
-            height: 20px;
+            width: 48px;
+            height: 24px;
         }
         .toggle-switch input {
             opacity: 0;
@@ -110,111 +120,152 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #555;
+            background: #333366;
             transition: 0.4s;
-            border-radius: 20px;
-            border: 1px solid #00aaff;
+            border-radius: 24px;
+            border: 1px solid #00ffcc;
+            box-shadow: inset 0 0 5px rgba(0, 255, 204, 0.3);
         }
         .slider:before {
             position: absolute;
             content: "";
-            height: 16px;
-            width: 16px;
+            height: 20px;
+            width: 20px;
             left: 2px;
             bottom: 2px;
-            background-color: #00aaff;
+            background: #00ffcc;
             transition: 0.4s;
             border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
         }
         input:checked + .slider {
-            background-color: #00ff00;
+            background: #00ff66;
         }
         input:checked + .slider:before {
-            transform: translateX(20px);
-            background-color: #00ff00;
+            transform: translateX(24px);
+            background: #00ff66;
+            box-shadow: 0 0 10px rgba(0, 255, 102, 0.7);
         }
         #page-info {
             font-size: 12px;
-            color: #b3e5fc;
+            color: #80d4ff;
             text-align: right;
-            margin-top: 8px;
-            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
         }
         #esp-container .esp-entry {
-            margin: 2px 0;
-            color: #00ffff;
+            margin: 4px 0;
+            color: #00ffcc;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
         }
         #esp-container .esp-entry .distance {
-            color: #ffff00;
-            margin-left: 5px;
+            color: #ffcc00;
+            margin-left: 8px;
         }
-        /* Custom scrollbar */
         #menu-items::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         #menu-items::-webkit-scrollbar-track {
             background: transparent;
         }
         #menu-items::-webkit-scrollbar-thumb {
-            background: #00aaff;
-            border-radius: 4px;
+            background: #00ffcc;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
         #menu-items::-webkit-scrollbar-thumb:hover {
-            background: #0077cc;
+            background: #00b3cc;
         }
         #color-picker-container, #slider-container {
             display: none;
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(26,26,46,0.9), rgba(22,33,62,0.9));
-            border: 2px solid #00aaff;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0,170,255,0.5);
+            background: linear-gradient(145deg, rgba(20, 20, 50, 0.95), rgba(10, 20, 60, 0.95));
+            border: 2px solid #00ffcc;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
             z-index: 100;
+            backdrop-filter: blur(10px);
         }
         #color-picker-container.visible, #slider-container.visible {
             display: block;
         }
         #color-preview {
             width: 100%;
-            height: 50px;
-            border: 1px solid #00aaff;
-            border-radius: 4px;
-            margin-bottom: 10px;
+            height: 60px;
+            border: 2px solid #00ffcc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
         }
         .color-input {
             width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border: 1px solid #00aaff;
-            border-radius: 4px;
-            color: #ffffff;
+            padding: 8px;
+            margin-bottom: 12px;
+            background: rgba(20, 20, 50, 0.7);
+            border: 1px solid #00ffcc;
+            border-radius: 6px;
+            color: #e0e0ff;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
+            transition: all 0.3s ease;
+        }
+        .color-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
         }
         .color-button {
-            background: linear-gradient(90deg, #00aaff, #0077cc);
-            padding: 8px;
-            border-radius: 4px;
+            background: linear-gradient(90deg, #00ffcc, #0077ff);
+            padding: 10px;
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
-            margin: 5px 0;
+            margin: 6px 0;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
         }
         .color-button:hover {
-            background: linear-gradient(90deg, #0077cc, #0055aa);
+            background: linear-gradient(90deg, #00b3cc, #0055ff);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.7);
         }
         #slider-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #e0e0ff;
+            margin-bottom: 12px;
+            text-shadow: 0 0 5px rgba(0, 255, 204, 0.8);
         }
         #slider-value {
-            color: #b3e5fc;
+            color: #80d4ff;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 3px rgba(0, 255, 204, 0.5);
+        }
+        #slider-input {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #333366;
+            border-radius: 4px;
+            outline: none;
+            border: 1px solid #00ffcc;
+            box-shadow: inset 0 0 5px rgba(0, 255, 204, 0.3);
+        }
+        #slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00ffcc;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.7);
+            transition: all 0.3s ease;
+        }
+        #slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -335,7 +386,7 @@
                 } else if (item.hasSubmenu) {
                     const arrow = document.createElement('span');
                     arrow.textContent = '>';
-                    arrow.className = 'text-blue-400';
+                    arrow.className = 'text-cyan-400';
                     itemElement.appendChild(arrow);
                 } else if (item.name === 'Change Color') {
                     itemElement.addEventListener('click', () => {

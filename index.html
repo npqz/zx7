@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Z7F Menu</title>
+    <title>FiveM Lua Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css" integrity="sha512-yGemaI5f36dP4B4N2vS7yJ4mhw3j+6PusWysN1Z path/to/prism-dark.min.css">
     <style>
         * {
             margin: 0;
@@ -13,852 +14,1391 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: white;
-            overflow: hidden;
-            user-select: none;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
         }
 
-        .menu-container {
-            width: 750px;
-            height: 500px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid #ff0000;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff3333;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff5555;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #ff3333;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff3333;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+        }
+
+        .credits {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .credits a {
+            color: #ff3333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .credits a:hover {
+            color: #ff5555;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 1rem;
+            transition: left 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .sidebar li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.5rem;
+            display: block;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 51, 51, 0.2);
+        }
+
+        .sidebar-toggle {
+            display: none;
+            font-size: 1.5rem;
+            color: #ff3333;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: rgba(255, 51, 51, 0.1);
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: rgba(255, 51, 51, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: #ff3333;
+            box-shadow: 0 5px 15px rgba(255, 51, 51, 0.3);
+        }
+
+        .tab.visited::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: #ff9999;
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .content {
+            background: rgba(26, 26, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 10px 10px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .tab-content {
+            display: none;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: sticky;
+            top: 0;
+            height: 4px;
+            background: #ff3333;
+            width: 0;
+            transition: width 0.2s ease;
+            z-index: 1001;
+        }
+
+        /* Back-to-Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: none;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .back-to-top.visible {
+            display: flex;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            color: #ffffff;
+            padding: 5px 10px;
+            border: 1px solid #ff3333;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            z-index: 10;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        h1 {
+            color: #ff3333;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+
+        h2 {
+            color: #ff3333;
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem 0;
+            border-left: 4px solid #ff3333;
+            padding-left: 1rem;
+        }
+
+        h2 a.anchor {
+            color: #ff3333;
+            text-decoration: none;
+            margin-left: 0.5rem;
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        h2 a.anchor:hover {
+            opacity: 1;
+        }
+
+        h3 {
+            color: #ff5555;
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: #e0e0e0;
+            font-size: 1.1rem;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-left: 4px solid #ff3333;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block.collapsed code {
+            display: none;
+        }
+
+        .code-block .toggle-button {
+            position: absolute;
+            top: 8px;
+            right: 80px;
+            background: #ff3333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .code-block .toggle-button:hover {
+            background: #ff5555;
+        }
+
+        .code-block .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 15px;
+            background: #ff3333;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .code-block .copy-button:hover {
+            background: #ff5555;
+        }
+
+        .code-block::before {
+            content: 'Lua';
+            position: absolute;
+            top: 8px;
+            right: 150px;
+            color: #ff3333;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .highlight {
+            background: rgba(255, 51, 51, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ff9999;
+            font-weight: bold;
+        }
+
+        .example-box {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid #ff3333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .example-box h4 {
+            color: #ff3333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        ul {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #e0e0e0;
+        }
+
+        .intro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 51, 51, 0.1);
+            border: 1px solid rgba(255, 51, 51, 0.3);
             border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px) rotate(2deg);
+            box-shadow: 0 10px 25px rgba(255, 51, 51, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: #ff3333;
+            margin-bottom: 1rem;
+        }
+
+        /* Loading Spinner */
+        .loader {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-        }
-
-        .menu-header {
-            background: linear-gradient(90deg, #ff0000, #cc0000);
-            padding: 15px;
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 8px 8px 0 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        .menu-body {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .tab-list {
-            width: 150px;
-            background: rgba(20, 20, 20, 0.9);
-            border-right: 1px solid #333;
-        }
-
-        .tab-button {
-            width: 100%;
-            padding: 12px 8px;
-            background: transparent;
-            border: none;
-            color: white;
-            text-align: left;
-            cursor: pointer;
-            font-size: 12px;
-            border-bottom: 1px solid #333;
-            transition: all 0.3s ease;
-        }
-
-        .tab-button:hover {
-            background: rgba(255, 0, 0, 0.2);
-        }
-
-        .tab-button.active {
-            background: rgba(255, 0, 0, 0.4);
-            border-left: 3px solid #ff0000;
-        }
-
-        .tab-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: rgba(10, 10, 10, 0.8);
-        }
-
-        .section {
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            color: #ff0000;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-        }
-
-        .button {
-            background: linear-gradient(135deg, #ff0000, #cc0000);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            margin: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .button:hover {
-            background: linear-gradient(135deg, #cc0000, #aa0000);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(0);
-        }
-
-        .button.toggle-on {
-            background: linear-gradient(135deg, #00ff00, #00cc00);
-        }
-
-        .input-group {
-            margin: 10px 0;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ccc;
-            font-size: 12px;
-        }
-
-        .input-field {
-            width: 100%;
-            padding: 8px;
-            background: rgba(50, 50, 50, 0.8);
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: white;
-            font-size: 12px;
-        }
-
-        .slider {
-            width: 100%;
-            margin: 10px 0;
-        }
-
-        .slider input[type="range"] {
-            width: 100%;
-            background: #333;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-
-        .slider input[type="range"]:hover {
-            opacity: 1;
-        }
-
-        .dropdown {
-            width: 100%;
-            padding: 8px;
-            background: rgba(50, 50, 50, 0.8);
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: white;
-            font-size: 12px;
-            margin: 5px 0;
-        }
-
-        .player-list {
-            max-height: 200px;
-            overflow-y: auto;
-            background: rgba(20, 20, 20, 0.7);
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        .player-item {
-            padding: 8px;
-            margin: 5px 0;
-            background: rgba(40, 40, 40, 0.8);
-            border-radius: 4px;
-            border-left: 3px solid #ff0000;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ff0000;
-            color: white;
-            border: none;
-            width: 25px;
-            height: 25px;
+            border: 4px solid #ff3333;
+            border-top: 4px solid transparent;
             border-radius: 50%;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
         }
 
-        .vehicle-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+        .tab-content.loading .loader {
+            display: block;
         }
 
-        .vehicle-card {
-            background: rgba(40, 40, 40, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid #333;
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        .vehicle-card:hover {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: #ff0000;
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .tabs {
+                display: none;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .content {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
         }
 
-        .weapon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-        }
+        @media (min-width: 769px) {
+            .sidebar {
+                left: 0;
+                width: 200px;
+            }
 
-        .weapon-item {
-            background: rgba(40, 40, 40, 0.8);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-left: 3px solid #555;
-        }
-
-        .weapon-item:hover {
-            background: rgba(255, 0, 0, 0.2);
-            border-left-color: #ff0000;
-        }
-
-        .status-bar {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 11px;
-            border: 1px solid #333;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #555;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #777;
+            .container {
+                margin-left: 220px;
+                max-width: calc(1200px - 220px);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="menu-container">
-        <div class="menu-header">
-            Z7F Menu
-            <button class="close-btn" onclick="closeMenu()">×</button>
-        </div>
-        <div class="menu-body">
-            <div class="tab-list">
-                <button class="tab-button active" onclick="showTab('self')">Self</button>
-                <button class="tab-button" onclick="showTab('weapons')">Weapons</button>
-                <button class="tab-button" onclick="showTab('online')">Online Players</button>
-                <button class="tab-button" onclick="showTab('troll')">Troll</button>
-                <button class="tab-button" onclick="showTab('vehicle')">Vehicle</button>
-                <button class="tab-button" onclick="showTab('exploits')">Exploits</button>
-                <button class="tab-button" onclick="showTab('misc')">Misc</button>
-                <button class="tab-button" onclick="showTab('settings')">Settings</button>
+    <div class="progress-bar"></div>
+    <div class="sidebar">
+        <ul>
+            <li><a href="#" onclick="showTab('intro')">Introduction</a></li>
+            <li><a href="#" onclick="showTab('basics')">Lua Basics</a></li>
+            <li><a href="#" onclick="showTab('fivem')">FiveM Specific</a></li>
+            <li><a href="#" onclick="showTab('examples')">Examples</a></li>
+            <li><a href="#" onclick="showTab('resources')">Resources</a></li>
+        </ul>
+    </div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="sidebar-toggle">☰</div>
+                <div class="logo">🚗 FiveM Lua Guide</div>
+                <div class="credits">Made by Faisal | <a href="https://discord.gg/zx7" target="_blank">discord.gg/zx7</a></div>
             </div>
-            <div class="tab-content">
-                <!-- Self Tab -->
-                <div id="self-tab" class="tab-panel">
-                    <div class="section">
-                        <div class="section-title">Player Options</div>
-                        <button class="button" id="god-mode" onclick="toggleGodMode()">Toggle God Mode</button>
-                        <button class="button" onclick="healPlayer()">Heal Player</button>
-                        <button class="button" onclick="fullArmour()">Full Armour</button>
-                        <button class="button" id="super-speed" onclick="toggleSuperSpeed()">Toggle Super Speed</button>
-                        <button class="button" onclick="teleportToWaypoint()">Teleport to Waypoint</button>
-                        <button class="button" id="super-jump" onclick="toggleSuperJump()">Toggle Super Jump</button>
-                        <button class="button" onclick="clearWanted()">Clear Wanted Level</button>
-                        <button class="button" id="no-ragdoll" onclick="toggleNoRagdoll()">Toggle No Ragdoll</button>
-                        <button class="button" id="invisible" onclick="toggleInvisible()">Toggle Invisible</button>
-                        <button class="button" id="infinite-stamina" onclick="toggleInfiniteStamina()">Toggle Infinite Stamina</button>
-                        <button class="button" id="no-collision" onclick="toggleNoCollision()">Toggle No Collision</button>
-                        <button class="button" onclick="changePlayerModel()">Change Player Model</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('intro')">Introduction</button>
+            <button class="tab" onclick="showTab('basics')">Lua Basics</button>
+            <button class="tab" onclick="showTab('fivem')">FiveM Specific</button>
+            <button class="tab" onclick="showTab('examples')">Examples</button>
+            <button class="tab" onclick="showTab('resources')">Resources</button>
+        </div>
+
+        <div class="content">
+            <!-- Introduction Tab -->
+            <div id="intro" class="tab-content active">
+                <div class="loader"></div>
+                <h1>Welcome to FiveM Lua Development</h1>
+                <p>Learn the fundamentals of <span class="tooltip" data-tooltip="A lightweight scripting language used in FiveM">Lua</span> programming specifically tailored for <span class="tooltip" data-tooltip="A multiplayer modification framework for GTA V">FiveM</span> server development. This guide will take you from complete beginner to creating your own resources.</p>
+                
+                <div class="intro-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Learn Basics</h3>
+                        <p>Master Lua syntax, variables, functions, and control structures with FiveM-focused examples.</p>
                     </div>
-                    <div class="section">
-                        <div class="section-title">Advanced Health</div>
-                        <div class="input-group">
-                            <label>Stamina: <span id="stamina-value">50</span>%</label>
-                            <input type="range" min="0" max="100" value="50" class="slider" 
-                                   oninput="setStamina(this.value)">
-                        </div>
-                        <div class="input-group">
-                            <label>Recovery Rate: <span id="recovery-value">1.0</span>x</label>
-                            <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" 
-                                   oninput="setRecoveryRate(this.value)">
-                        </div>
-                        <button class="button" id="fire-explosion-proof" onclick="toggleFireExplosionProof()">Toggle Fire/Explosion Proof</button>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3>FiveM Integration</h3>
+                        <p>Understand FiveM natives, events, and server-client communication patterns.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Practical Examples</h3>
+                        <p>Build real-world scripts like teleportation, vehicle spawning, and player management.</p>
                     </div>
                 </div>
 
-                <!-- Weapons Tab -->
-                <div id="weapons-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Weapon Options</div>
-                        <button class="button" onclick="giveAllWeapons()">Give All Weapons</button>
-                        <button class="button" id="infinite-ammo" onclick="toggleInfiniteAmmo()">Toggle Infinite Ammo</button>
-                        <button class="button" id="one-shot-kill" onclick="toggleOneShotKill()">Toggle One-Shot Kill</button>
-                        <button class="button" onclick="removeAllWeapons()">Remove All Weapons</button>
-                        <button class="button" id="fire-bullets" onclick="toggleFireBullets()">Toggle Fire Bullets</button>
-                        <button class="button" id="anti-recoil" onclick="toggleAntiRecoil()">Toggle Anti-Recoil</button>
-                        <button class="button" id="rapid-fire" onclick="toggleRapidFire()">Toggle Rapid Fire</button>
-                        <button class="button" id="no-spread" onclick="toggleNoSpread()">Toggle No Spread</button>
-                    </div>
-                    <div class="section">
-                        <div class="section-title">Weapon Customization</div>
-                        <button class="button" onclick="addSuppressor()">Add Suppressor</button>
-                        <button class="button" onclick="addExtendedMag()">Add Extended Mag</button>
-                        <button class="button" onclick="addScope()">Add Scope</button>
-                        <button class="button" onclick="giveAllAttachments()">Give All Attachments</button>
-                    </div>
-                    <div class="section">
-                        <div class="section-title">Weapon Categories</div>
-                        <button class="button" onclick="givePistols()">Give Pistols</button>
-                        <button class="button" onclick="giveShotguns()">Give Shotguns</button>
+                <h2 id="what-youll-learn">What You'll Learn <a href="#what-youll-learn" class="anchor">🔗</a></h2>
+                <ul>
+                    <li>Lua programming fundamentals</li>
+                    <li>FiveM resource structure and manifest files</li>
+                    <li>Client-server communication using events</li>
+                    <li>Native function usage and best practices</li>
+                    <li>Database integration and data persistence</li>
+                    <li>Creating user interfaces with NUI</li>
+                </ul>
+            </div>
+
+            <!-- Lua Basics Tab -->
+            <div id="basics" class="tab-content">
+                <div class="loader"></div>
+                <h1>Lua Programming Basics</h1>
+                
+                <h2 id="variables-and-data-types">Variables and Data Types <a href="#variables-and-data-types" class="anchor">🔗</a></h2>
+                <p>Lua is <span class="tooltip" data-tooltip="Variables can hold any type without explicit declaration">dynamically typed</span>, meaning variables don't need explicit type declarations.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Numbers
+local health = 100
+local money = 1500.50
+
+-- Strings
+local playerName = "John Doe"
+local message = 'Welcome to the server!'
+
+-- Booleans
+local isAlive = true
+local isAdmin = false
+
+-- Tables (arrays and objects)
+local weapons = {"pistol", "rifle", "shotgun"}
+local player = {
+    name = "John",
+    id = 12345,
+    health = 100
+}
+                    </code>
+                </div>
+
+                <h2 id="functions">Functions <a href="#functions" class="anchor">🔗</a></h2>
+                <p>Functions are first-class values in Lua and can be stored in variables.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Basic function
+function greetPlayer(name)
+    return "Hello, " .. name .. "!"
+end
+
+-- Local function (recommended)
+local function calculateDamage(weapon, distance)
+    local baseDamage = weapon.damage
+    local damageReduction = distance * 0.1
+    return baseDamage - damageReduction
+end
+
+-- Anonymous function
+local healPlayer = function(playerId, amount)
+    -- Heal player logic here
+    print("Healed player " .. playerId .. " for " .. amount .. " HP")
+end
+                    </code>
+                </div>
+
+                <h2 id="control-structures">Control Structures <a href="#control-structures" class="anchor">🔗</a></h2>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- If statements
+if health <= 0 then
+    print("Player is dead!")
+elseif health < 50 then
+    print("Player needs medical attention")
+else
+    print("Player is healthy")
+end
+
+-- For loops
+for i = 1, 10 do
+    print("Count: " .. i)
+end
+
+-- Iterate through table
+local players = {"Alice", "Bob", "Charlie"}
+for index, name in ipairs(players) do
+    print(index .. ": " .. name)
+end
+
+-- While loop
+local countdown = 5
+while countdown > 0 do
+    print("Starting in " .. countdown)
+    countdown = countdown - 1
+    Wait(1000) -- FiveM function to wait 1 second
+end
+                    </code>
+                </div>
+
+                <h2 id="tables-in-detail">Tables in Detail <a href="#tables-in-detail" class="anchor">🔗</a></h2>
+                <p>Tables are Lua's only data structure and can represent arrays, objects, and more.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Array-like table
+local vehicles = {"adder", "zentorno", "t20"}
+
+-- Object-like table
+local playerData = {
+    name = "John",
+    money = 5000,
+    vehicles = {"adder", "zentorno"},
+    position = {x = 100.0, y = 200.0, z = 30.0}
+}
+
+-- Adding elements
+playerData.bank = 10000
+playerData["job"] = "police"
+
+-- Accessing nested data
+local playerX = playerData.position.x
+print("Player's X coordinate: " .. playerX)
+                    </code>
+                </div>
+            </div>
+
+            <!-- FiveM Specific Tab -->
+            <div id="fivem" class="tab-content">
+                <div class="loader"></div>
+                <h1>FiveM Lua Development</h1>
+                
+                <h2 id="resource-structure">Resource Structure <a href="#resource-structure" class="anchor">🔗</a></h2>
+                <p>Every FiveM resource needs a proper folder structure and manifest file.</p>
+                
+                <div class="example-box">
+                    <h4>📁 Typical Resource Structure</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+my-resource/
+├── fxmanifest.lua
+├── client.lua
+├── server.lua
+└── shared.lua (optional)
+                        </code>
                     </div>
                 </div>
 
-                <!-- Online Players Tab -->
-                <div id="online-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Online Players</div>
-                        <div class="player-list" id="player-list">
-                            <div class="player-item">
-                                Player_1001 
-                                <button class="button" onclick="teleportToPlayer('Player_1001')">Teleport</button>
-                                <button class="button" onclick="copyClothes('Player_1001')">Copy Clothes</button>
-                                <button class="button" onclick="spectatePlayer('Player_1001')">Spectate</button>
-                            </div>
-                            <div class="player-item">
-                                Player_1002
-                                <button class="button" onclick="teleportToPlayer('Player_1002')">Teleport</button>
-                                <button class="button" onclick="copyClothes('Player_1002')">Copy Clothes</button>
-                                <button class="button" onclick="spectatePlayer('Player_1002')">Spectate</button>
-                            </div>
-                        </div>
-                        <button class="button" onclick="refreshPlayerList()">Refresh Player List</button>
+                <h2 id="fx-manifest-file">FX Manifest File <a href="#fx-manifest-file" class="anchor">🔗</a></h2>
+                <p>The <span class="highlight">fxmanifest.lua</span> file defines your resource configuration.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+fx_version 'cerulean'
+game 'gta5'
+
+author 'Your Name'
+description 'My awesome FiveM resource'
+version '1.0.0'
+
+-- Scripts
+client_script 'client.lua'
+server_script 'server.lua'
+shared_script 'shared.lua'
+
+-- Dependencies
+dependencies {
+    'es_extended', -- ESX framework (if using)
+    'mysql-async'  -- Database (if needed)
+}
+                    </code>
+                </div>
+
+                <h2 id="events-system">Events System <a href="#events-system" class="anchor">🔗</a></h2>
+                <p>FiveM uses an <span class="tooltip" data-tooltip="A system where scripts communicate via named triggers">event-driven architecture</span> for client-server communication.</p>
+                
+                <h3>Triggering Events</h3>
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Client to Server
+TriggerServerEvent('my-resource:doSomething', data)
+
+-- Server to Client
+TriggerClientEvent('my-resource:updateUI', source, data)
+
+-- Server to All Clients
+TriggerClientEvent('my-resource:broadcast', -1, message)
+                    </code>
+                </div>
+
+                <h3>Registering Event Handlers</h3>
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- On Client
+RegisterNetEvent('my-resource:updateUI')
+AddEventHandler('my-resource:updateUI', function(data)
+    print('Received data from server: ' .. json.encode(data))
+end)
+
+-- On Server
+RegisterNetEvent('my-resource:doSomething')
+AddEventHandler('my-resource:doSomething', function(data)
+    local playerId = source
+    print('Player ' .. playerId .. ' sent: ' .. json.encode(data))
+end)
+                    </code>
+                </div>
+
+                <h3>Building Custom Events</h3>
+                <p>Create custom events for gameplay mechanics like quests or interactions.</p>
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+-- Start quest
+RegisterCommand('startquest', function()
+    TriggerServerEvent('quest:start', GetPlayerServerId(PlayerId()))
+end, false)
+
+-- Receive quest update
+RegisterNetEvent('quest:update')
+AddEventHandler('quest:update', function(questData)
+    SetNotificationTextEntry('STRING')
+    AddTextComponentString('Quest: ' .. questData.name .. ' - ' .. questData.status)
+    DrawNotification(0, 1)
+end)
+                        </code>
+                    </div>
+                    <h4>📄 server.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+local quests = {}
+
+RegisterNetEvent('quest:start')
+AddEventHandler('quest:start', function(playerId)
+    quests[playerId] = { name = "Find the Treasure", status = "Started" }
+    TriggerClientEvent('quest:update', playerId, quests[playerId])
+    print("Player " .. playerId .. " started quest")
+end)
+                        </code>
                     </div>
                 </div>
 
-                <!-- Troll Tab -->
-                <div id="troll-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Welcome To Troll Tab</div>
-                        <p style="color: #0f0; margin-bottom: 15px;">Just Safe Here!</p>
-                        <button class="button" id="kill-all" onclick="toggleKillAll()">Kill All (Toggle with E, Cycle with R)</button>
-                        <div style="margin-top: 10px; font-size: 11px; color: #ccc;">
-                            Current Weapon: <span id="current-weapon">VEHICLE_WEAPON_PLAYER_BULLET</span>
-                        </div>
+                <h2 id="native-functions">Native Functions <a href="#native-functions" class="anchor">🔗</a></h2>
+                <p>FiveM provides access to GTA V's <span class="tooltip" data-tooltip="Built-in game functions for interacting with the game world">native functions</span> for game interaction.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Get player position
+local ped = PlayerPedId()
+local x, y, z = table.unpack(GetEntityCoords(ped, false))
+
+-- Spawn a vehicle
+local vehicleHash = GetHashKey('adder')
+RequestModel(vehicleHash)
+while not HasModelLoaded(vehicleHash) do
+    Wait(1)
+end
+
+local vehicle = CreateVehicle(vehicleHash, x, y, z, 0.0, true, false)
+SetPedIntoVehicle(ped, vehicle, -1)
+                    </code>
+                </div>
+
+                <h2 id="threads-and-loops">Threads and Loops <a href="#threads-and-loops" class="anchor">🔗</a></h2>
+                <p>Use <span class="highlight">Citizen.CreateThread</span> for continuous operations.</p>
+                
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Basic thread
+Citizen.CreateThread(function()
+    while true do
+        Wait(0) -- Important: prevents server freezing
+        
+        -- Your continuous code here
+        local ped = PlayerPedId()
+        local health = GetEntityHealth(ped)
+        
+        if health <= 0 then
+            print("Player died!")
+            break -- Exit the loop
+        end
+    end
+end)
+
+-- Timed thread (runs every 5 seconds)
+Citizen.CreateThread(function()
+    while true do
+        Wait(5000) -- 5 seconds
+        
+        print("This runs every 5 seconds")
+    end
+end)
+                    </code>
+                </div>
+
+                <h2 id="performance-monitoring">Performance Monitoring <a href="#performance-monitoring" class="anchor">🔗</a></h2>
+                <p>Monitor your scripts to ensure they don't cause lag. Use profiling to measure execution time and optimize loops.</p>
+                <div class="code-block">
+                    <button class="toggle-button">Toggle</button>
+                    <button class="copy-button">Copy</button>
+                    <code class="language-lua">
+-- Client-side FPS monitoring
+Citizen.CreateThread(function()
+    while true do
+        Wait(1000)
+        local fps = 1 / GetFrameTime()
+        print("Current FPS: " .. math.floor(fps))
+    end
+end)
+
+-- Server-side profiling example
+local function profileFunction(func, name)
+    local start = GetGameTimer()
+    func()
+    local duration = GetGameTimer() - start
+    print("Function " .. name .. " took " .. duration .. "ms")
+end
+                    </code>
+                </div>
+                <p><strong>Tip:</strong> Avoid tight loops with <code>Wait(0)</code> and cache frequently used <span class="tooltip" data-tooltip="Store native function results to avoid repeated calls">natives</span>.</p>
+
+                <h2 id="permission-systems">Permission Systems <a href="#permission-systems" class="anchor">🔗</a></h2>
+                <p>Restrict commands to specific roles like admin or moderator.</p>
+                <div class="example-box">
+                    <h4>📄 server.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+local permissions = {
+    [1] = "admin", -- Player ID 1 is admin
+    [2] = "moderator" -- Player ID 2 is moderator
+}
+
+RegisterCommand('kick', function(source, args, rawCommand)
+    if permissions[source] == "admin" then
+        local targetId = tonumber(args[1])
+        DropPlayer(targetId, "Kicked by admin")
+        TriggerClientEvent('chat:addMessage', -1, {
+            args = {"System", "Player " .. targetId .. " was kicked"}
+        })
+    else
+        TriggerClientEvent('chat:addMessage', source, {
+            args = {"System", "Permission denied"}
+        })
+    end
+end, true)
+                        </code>
                     </div>
                 </div>
 
-                <!-- Vehicle Tab -->
-                <div id="vehicle-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Vehicle Spawner</div>
-                        <div class="input-group">
-                            <label>Select Vehicle:</label>
-                            <select class="dropdown" id="vehicle-select" onchange="selectVehicle()">
-                                <option value="">-- Select Vehicle --</option>
-                                <option value="adder">Adder</option>
-                                <option value="sultan">Sultan</option>
-                                <option value="zentorno">Zentorno</option>
-                                <option value="banshee">Banshee</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Custom Vehicle Model:</label>
-                            <input type="text" class="input-field" id="custom-vehicle" placeholder="e.g., adder">
-                            <button class="button" onclick="useCustomInput()">Use Custom Input</button>
-                        </div>
-                        <button class="button" onclick="spawnVehicle()">Spawn Car</button>
-                        <button class="button" onclick="listVehicles()">List Vehicles</button>
-                        <button class="button" id="vehicle-god-mode" onclick="toggleVehicleGodMode()">Toggle Vehicle God Mode</button>
-                        <button class="button" onclick="maxUpgradeVehicle()">Max Upgrade Vehicle</button>
+                <h2 id="animations-and-tasks">Animations and Tasks <a href="#animations-and-tasks" class="anchor">🔗</a></h2>
+                <p>Use <span class="tooltip" data-tooltip="Functions to control character animations and behaviors">natives</span> to control player and NPC animations for emotes or scripted sequences.</p>
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+RegisterCommand('dance', function()
+    local ped = PlayerPedId()
+    RequestAnimDict("amb@world_human_partying@female@partying_base")
+    while not HasAnimDictLoaded("amb@world_human_partying@female@partying_base") do
+        Wait(1)
+    end
+    TaskPlayAnim(ped, "amb@world_human_partying@female@partying_base", "dance_bottle", 8.0, -8.0, -1, 1, 0, false, false, false)
+    SetNotificationTextEntry('STRING')
+    AddTextComponentString('Started dancing!')
+    DrawNotification(0, 1)
+end, false)
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples Tab -->
+            <div id="examples" class="tab-content">
+                <div class="loader"></div>
+                <h1>Practical Examples</h1>
+                
+                <h2 id="teleport-command">Example 1: Simple Teleport Command <a href="#teleport-command" class="anchor">🔗</a></h2>
+                <p>Create a command that teleports players to a specific location.</p>
+                
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+-- Register command
+RegisterCommand('tpls', function(source, args, rawCommand)
+    local ped = PlayerPedId()
+    
+    -- Los Santos Airport coordinates
+    local x, y, z = -1037.5, -2737.6, 20.1
+    
+    -- Teleport player
+    SetEntityCoords(ped, x, y, z, false, false, false, true)
+    
+    -- Notify player
+    SetNotificationTextEntry('STRING')
+    AddTextComponentString('Teleported to Los Santos Airport!')
+    DrawNotification(0, 1)
+end, false)
+                        </code>
                     </div>
                 </div>
 
-                <!-- Exploits Tab -->
-                <div id="exploits-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Exploit Options</div>
-                        <button class="button" id="anti-tp" onclick="toggleAntiTP()">Toggle Anti-TP</button>
-                        <button class="button" id="fast-swim" onclick="toggleFastSwim()">Toggle Fast Swim</button>
-                        <p style="color: #ff0; margin-top: 15px; font-size: 11px;">
-                            Advanced exploit features are active. Use responsibly.
-                        </p>
+                <h2 id="vehicle-spawner">Example 2: Vehicle Spawner <a href="#vehicle-spawner" class="anchor">🔗</a></h2>
+                <p>Spawn different vehicles with a command system.</p>
+                
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+local function spawnVehicle(vehicleName)
+    local ped = PlayerPedId()
+    local x, y, z = table.unpack(GetEntityCoords(ped, false))
+    local heading = GetEntityHeading(ped)
+    
+    -- Get vehicle hash
+    local vehicleHash = GetHashKey(vehicleName)
+    
+    -- Check if model exists
+    if not IsModelInCdimage(vehicleHash) or not IsModelAVehicle(vehicleHash) then
+        SetNotificationTextEntry('STRING')
+        AddTextComponentString('Invalid vehicle model: ' .. vehicleName)
+        DrawNotification(0, 1)
+        return
+    end
+    
+    -- Request model
+    RequestModel(vehicleHash)
+    while not HasModelLoaded(vehicleHash) do
+        Wait(1)
+    end
+    
+    -- Spawn vehicle
+    local vehicle = CreateVehicle(vehicleHash, x + 3, y, z, heading, true, false)
+    SetVehicleOnGroundProperly(vehicle)
+    
+    -- Put player in vehicle
+    TaskWarpPedIntoVehicle(ped, vehicle, -1)
+    
+    -- Set model as no longer needed
+    SetModelAsNoLongerNeeded(vehicleHash)
+    
+    SetNotificationTextEntry('STRING')
+    AddTextComponentString('Vehicle spawned: ' .. vehicleName)
+    DrawNotification(0, 1)
+end
+
+-- Register commands for different vehicles
+RegisterCommand('car', function(source, args, rawCommand)
+    local vehicleName = args[1] or 'adder'
+    spawnVehicle(vehicleName)
+end, false)
+
+RegisterCommand('bike', function(source, args, rawCommand)
+    spawnVehicle('sanchez')
+end, false)
+
+RegisterCommand('heli', function(source, args, rawCommand)
+    spawnVehicle('buzzard2')
+end, false)
+                        </code>
                     </div>
                 </div>
 
-                <!-- Misc Tab -->
-                <div id="misc-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">World Modifiers</div>
-                        <button class="button" id="time-freeze" onclick="toggleTimeFreeze()">Toggle Time Freeze</button>
-                        <div class="input-group">
-                            <label>Time Speed: <span id="time-speed-value">1.0</span>x</label>
-                            <input type="range" min="0.1" max="10.0" step="0.1" value="1.0" class="slider" 
-                                   oninput="adjustTimeSpeed(this.value)">
-                        </div>
-                        <button class="button" id="no-traffic" onclick="toggleNoTraffic()">Toggle No Traffic</button>
+                <h2 id="player-management">Example 3: Player Management System <a href="#player-management" class="anchor">🔗</a></h2>
+                <p>Server-side player tracking and management.</p>
+                
+                <div class="example-box">
+                    <h4>📄 server.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+local players = {}
+
+-- Player joined server
+AddEventHandler('playerConnecting', function(name, setKickReason, deferrals)
+    local playerId = source
+    
+    players[playerId] = {
+        name = name,
+        joinTime = os.time(),
+        money = 5000, -- Starting money
+        level = 1
+    }
+    
+    print(name .. ' connected to the server')
+end)
+
+-- Player left server
+AddEventHandler('playerDropped', function(reason)
+    local playerId = source
+    local playerData = players[playerId]
+    
+    if playerData then
+        print(playerData.name .. ' left the server. Reason: ' .. reason)
+        players[playerId] = nil -- Clean up
+    end
+end)
+
+-- Get player info command
+RegisterCommand('playerinfo', function(source, args, rawCommand)
+    local playerId = tonumber(args[1]) or source
+    local playerData = players[playerId]
+    
+    if playerData then
+        local info = string.format(
+            'Player: %s | Money: $%d | Level: %d | Play Time: %d minutes',
+            playerData.name,
+            playerData.money,
+            playerData.level,
+            math.floor((os.time() - playerData.joinTime) / 60)
+        )
+        
+        TriggerClientEvent('chat:addMessage', source, {
+            color = {255, 0, 0},
+            multiline = true,
+            args = {"System", info}
+        })
+    else
+        TriggerClientEvent('chat:addMessage', source, {
+            color = {255, 0, 0},
+            multiline = true,
+            args = {"System", "Player not found!"}
+        })
+    end
+end, true) -- true = server-side command
+                        </code>
                     </div>
                 </div>
 
-                <!-- Settings Tab -->
-                <div id="settings-tab" class="tab-panel" style="display: none;">
-                    <div class="section">
-                        <div class="section-title">Menu Settings</div>
-                        <div class="input-group">
-                            <label>Menu Keybind:</label>
-                            <select class="dropdown" id="keybind-select" onchange="setKeybind()">
-                                <option value="DELETE">DELETE</option>
-                                <option value="INSERT">INSERT</option>
-                            </select>
-                        </div>
-                        <div style="margin-top: 20px; padding: 10px; background: rgba(40, 40, 40, 0.8); border-radius: 5px;">
-                            <div style="font-size: 12px; color: #ccc;">Authentication Key:</div>
-                            <div style="font-size: 14px; color: #ff0; font-weight: bold;" id="auth-key">Loading...</div>
-                        </div>
+                <h2 id="client-server-communication">Example 4: Client-Server Communication <a href="#client-server-communication" class="anchor">🔗</a></h2>
+                <p>Money system with server validation.</p>
+                
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+-- Request money from server
+RegisterCommand('givemoney', function(source, args, rawCommand)
+    local amount = tonumber(args[1]) or 100
+    TriggerServerEvent('money:request', amount)
+end, false)
+
+-- Receive money update from server
+RegisterNetEvent('money:update')
+AddEventHandler('money:update', function(newAmount)
+    SetNotificationTextEntry('STRING')
+    AddTextComponentString('Money updated: $' .. newAmount)
+    DrawNotification(0, 1)
+end)
+                        </code>
                     </div>
+                    
+                    <h4>📄 server.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+-- Handle money request
+RegisterNetEvent('money:request')
+AddEventHandler('money:request', function(amount)
+    local playerId = source
+    
+    -- Validate amount
+    if amount > 1000 then
+        amount = 1000 -- Cap at 1000
+    end
+    
+    -- Update player money (in real scenario, use database)
+    if players[playerId] then
+        players[playerId].money = players[playerId].money + amount
+        
+        -- Send updated amount back to client
+        TriggerClientEvent('money:update', playerId, players[playerId].money)
+        
+        print('Gave $' .. amount .. ' to player ' .. playerId)
+    end
+end)
+                        </code>
+                    </div>
+                </div>
+
+                <h2 id="custom-chat-systems">Custom Chat Systems <a href="#custom-chat-systems" class="anchor">🔗</a></h2>
+                <p>Create styled chat messages and commands for better player interaction.</p>
+                <div class="example-box">
+                    <h4>📄 client.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+RegisterCommand('ooc', function(source, args, rawCommand)
+    local message = table.concat(args, " ")
+    TriggerServerEvent('chat:ooc', message)
+end, false)
+
+RegisterNetEvent('chat:oocMessage')
+AddEventHandler('chat:oocMessage', function(playerName, message)
+    TriggerEvent('chat:addMessage', {
+        color = {100, 100, 255},
+        args = {"[OOC] " .. playerName, message}
+    })
+end)
+                        </code>
+                    </div>
+                    <h4>📄 server.lua</h4>
+                    <div class="code-block">
+                        <button class="toggle-button">Toggle</button>
+                        <button class="copy-button">Copy</button>
+                        <code class="language-lua">
+RegisterNetEvent('chat:ooc')
+AddEventHandler('chat:ooc', function(message)
+    local playerName = GetPlayerName(source)
+    TriggerClientEvent('chat:oocMessage', -1, playerName, message)
+end)
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Tab -->
+            <div id="resources" class="tab-content">
+                <div class="loader"></div>
+                <h1>Learning Resources</h1>
+                
+                <h2 id="documentation">📚 Documentation <a href="#documentation" class="anchor">🔗</a></h2>
+                <ul>
+                    <li><strong>FiveM Documentation:</strong> docs.fivem.net - Official FiveM docs</li>
+                    <li><strong>Lua Reference:</strong> lua.org/manual/5.4 - Official Lua manual</li>
+                    <li><strong>GTA V Natives:</strong> docs.fivem.net/natives - All available native functions</li>
+                    <li><strong>FiveM Cookbook:</strong> cookbook.fivem.net - Practical examples</li>
+                </ul>
+
+                <h2 id="development-tools">🛠️ Development Tools <a href="#development-tools" class="anchor">🔗</a></h2>
+                <ul>
+                    <li><strong>Visual Studio Code:</strong> Free editor with Lua extensions</li>
+                    <li><strong>FiveM Server:</strong> Download from fivem.net for local testing</li>
+                    <li><strong>HeidiSQL/Adminer:</strong> Database management tools</li>
+                    <li><strong>PostMan:</strong> For testing HTTP endpoints</li>
+                </ul>
+
+                <h2 id="next-steps">🎯 Next Steps <a href="#next-steps" class="anchor">🔗</a></h2>
+                <div class="example-box">
+                    <h4>Beginner Projects to Try:</h4>
+                    <ul>
+                        <li>Create a /heal command that restores player health</li>
+                        <li>Build a vehicle lock/unlock system</li>
+                        <li>Make a simple chat command system</li>
+                        <li>Create a player statistics display</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>Intermediate Projects:</h4>
+                    <ul>
+                        <li>Develop a job system with different roles</li>
+                        <li>Create a banking system with ATMs</li>
+                        <li>Build a vehicle dealership</li>
+                        <li>Make a housing system</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>Advanced Projects:</h4>
+                    <ul>
+                        <li>Create a complete roleplay framework</li>
+                        <li>Build a custom inventory system</li>
+                        <li>Develop a complex economy system</li>
+                        <li>Make custom UI with NUI (HTML/CSS/JS)</li>
+                    </ul>
+                </div>
+
+                <h2 id="community">🤝 Community <a href="#community" class="anchor">🔗</a></h2>
+                <p>Join FiveM communities to learn from other developers:</p>
+                <ul>
+                    <li><strong>FiveM Forums:</strong> forum.cfx.re - Official community</li>
+                    <li><strong>Discord Communities:</strong> Many development-focused Discord servers</li>
+                    <li><strong>GitHub:</strong> Explore open-source FiveM resources</li>
+                    <li><strong>Reddit:</strong> r/FiveM and r/lua for discussions</li>
+                </ul>
+
+                <div class="example-box">
+                    <h4>💡 Development Tips</h4>
+                    <ul>
+                        <li>Always use <code>Wait()</code> in infinite loops to prevent server lag</li>
+                        <li>Validate all user input on the server-side</li>
+                        <li>Use events for client-server communication</li>
+                        <li>Test your code thoroughly before releasing</li>
+                        <li>Comment your code for future reference</li>
+                        <li>Follow naming conventions and keep code organized</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="status-bar" id="status-bar">
-        Status: Ready
-    </div>
+    <button class="back-to-top">↑</button>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
     <script>
-        // Global state variables
-        let gameState = {
-            godMode: false,
-            superSpeed: false,
-            superJump: false,
-            noRagdoll: false,
-            invisible: false,
-            infiniteStamina: false,
-            noCollision: false,
-            infiniteAmmo: false,
-            oneShotKill: false,
-            fireBullets: false,
-            antiRecoil: false,
-            rapidFire: false,
-            noSpread: false,
-            vehicleGodMode: false,
-            antiTP: false,
-            fastSwim: false,
-            timeFreeze: false,
-            noTraffic: false,
-            killAll: false,
-            fireExplosionProof: false,
-            currentWeapon: 'VEHICLE_WEAPON_PLAYER_BULLET',
-            vehicleInput: '',
-            lastVehicleSelection: ''
-        };
-
-        // Tab switching
         function showTab(tabName) {
-            // Hide all tab panels
-            const panels = document.querySelectorAll('.tab-panel');
-            panels.forEach(panel => panel.style.display = 'none');
+            // Show loader
+            const content = document.querySelector(`#${tabName}`);
+            content.classList.add('loading');
             
-            // Remove active class from all tab buttons
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => button.classList.remove('active'));
-            
-            // Show selected tab panel
-            document.getElementById(tabName + '-tab').style.display = 'block';
-            
-            // Add active class to clicked button
-            event.target.classList.add('active');
+            // Simulate loading delay
+            setTimeout(() => {
+                // Hide all tab contents
+                const contents = document.querySelectorAll('.tab-content');
+                contents.forEach(c => {
+                    c.classList.remove('active', 'loading');
+                });
+                
+                // Remove active class from all tabs
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                content.classList.add('active');
+                
+                // Add active and visited class to clicked tab
+                const tab = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+                tab.classList.add('active', 'visited');
+                
+                // Update sidebar active link
+                const sidebarLinks = document.querySelectorAll('.sidebar a');
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('onclick') === `showTab('${tabName}')`) {
+                        link.classList.add('active');
+                    }
+                });
+                
+                // Reset scroll position
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 300);
         }
 
-        // Message handler for communication with Lua
-        window.addEventListener('message', function(event) {
-            const data = event.data;
-            
-            if (data.type === 'updatePlayers') {
-                updatePlayerList(data.players);
-            } else if (data.type === 'updateAuthKey') {
-                document.getElementById('auth-key').textContent = data.key;
-            } else if (data.type === 'updateStatus') {
-                document.getElementById('status-bar').textContent = 'Status: ' + data.message;
-            }
-        });
-
-        // Send message to Lua
-        function sendToLua(action, data = {}) {
-            const message = { action: action, data: data };
-            // This would be handled by the DUI message system
-            console.log('Sending to Lua:', message);
-            // In actual implementation, this would use the DUI message system
-        }
-
-        // Self tab functions
-        function toggleGodMode() {
-            gameState.godMode = !gameState.godMode;
-            const btn = document.getElementById('god-mode');
-            btn.classList.toggle('toggle-on', gameState.godMode);
-            sendToLua('toggleGodMode', { enabled: gameState.godMode });
-        }
-
-        function healPlayer() {
-            sendToLua('healPlayer');
-        }
-
-        function fullArmour() {
-            sendToLua('fullArmour');
-        }
-
-        function toggleSuperSpeed() {
-            gameState.superSpeed = !gameState.superSpeed;
-            const btn = document.getElementById('super-speed');
-            btn.classList.toggle('toggle-on', gameState.superSpeed);
-            sendToLua('toggleSuperSpeed', { enabled: gameState.superSpeed });
-        }
-
-        function teleportToWaypoint() {
-            sendToLua('teleportToWaypoint');
-        }
-
-        function toggleSuperJump() {
-            gameState.superJump = !gameState.superJump;
-            const btn = document.getElementById('super-jump');
-            btn.classList.toggle('toggle-on', gameState.superJump);
-            sendToLua('toggleSuperJump', { enabled: gameState.superJump });
-        }
-
-        function clearWanted() {
-            sendToLua('clearWanted');
-        }
-
-        function toggleNoRagdoll() {
-            gameState.noRagdoll = !gameState.noRagdoll;
-            const btn = document.getElementById('no-ragdoll');
-            btn.classList.toggle('toggle-on', gameState.noRagdoll);
-            sendToLua('toggleNoRagdoll', { enabled: gameState.noRagdoll });
-        }
-
-        function toggleInvisible() {
-            gameState.invisible = !gameState.invisible;
-            const btn = document.getElementById('invisible');
-            btn.classList.toggle('toggle-on', gameState.invisible);
-            sendToLua('toggleInvisible', { enabled: gameState.invisible });
-        }
-
-        function toggleInfiniteStamina() {
-            gameState.infiniteStamina = !gameState.infiniteStamina;
-            const btn = document.getElementById('infinite-stamina');
-            btn.classList.toggle('toggle-on', gameState.infiniteStamina);
-            sendToLua('toggleInfiniteStamina', { enabled: gameState.infiniteStamina });
-        }
-
-        function toggleNoCollision() {
-            gameState.noCollision = !gameState.noCollision;
-            const btn = document.getElementById('no-collision');
-            btn.classList.toggle('toggle-on', gameState.noCollision);
-            sendToLua('toggleNoCollision', { enabled: gameState.noCollision });
-        }
-
-        function changePlayerModel() {
-            sendToLua('changePlayerModel');
-        }
-
-        function setStamina(value) {
-            document.getElementById('stamina-value').textContent = value;
-            sendToLua('setStamina', { value: parseFloat(value) });
-        }
-
-        function setRecoveryRate(value) {
-            document.getElementById('recovery-value').textContent = value;
-            sendToLua('setRecoveryRate', { value: parseFloat(value) });
-        }
-
-        function toggleFireExplosionProof() {
-            gameState.fireExplosionProof = !gameState.fireExplosionProof;
-            const btn = document.getElementById('fire-explosion-proof');
-            btn.classList.toggle('toggle-on', gameState.fireExplosionProof);
-            sendToLua('toggleFireExplosionProof', { enabled: gameState.fireExplosionProof });
-        }
-
-        // Weapons tab functions
-        function giveAllWeapons() {
-            sendToLua('giveAllWeapons');
-        }
-
-        function toggleInfiniteAmmo() {
-            gameState.infiniteAmmo = !gameState.infiniteAmmo;
-            const btn = document.getElementById('infinite-ammo');
-            btn.classList.toggle('toggle-on', gameState.infiniteAmmo);
-            sendToLua('toggleInfiniteAmmo', { enabled: gameState.infiniteAmmo });
-        }
-
-        function toggleOneShotKill() {
-            gameState.oneShotKill = !gameState.oneShotKill;
-            const btn = document.getElementById('one-shot-kill');
-            btn.classList.toggle('toggle-on', gameState.oneShotKill);
-            sendToLua('toggleOneShotKill', { enabled: gameState.oneShotKill });
-        }
-
-        function removeAllWeapons() {
-            sendToLua('removeAllWeapons');
-        }
-
-        function toggleFireBullets() {
-            gameState.fireBullets = !gameState.fireBullets;
-            const btn = document.getElementById('fire-bullets');
-            btn.classList.toggle('toggle-on', gameState.fireBullets);
-            sendToLua('toggleFireBullets', { enabled: gameState.fireBullets });
-        }
-
-        function toggleAntiRecoil() {
-            gameState.antiRecoil = !gameState.antiRecoil;
-            const btn = document.getElementById('anti-recoil');
-            btn.classList.toggle('toggle-on', gameState.antiRecoil);
-            sendToLua('toggleAntiRecoil', { enabled: gameState.antiRecoil });
-        }
-
-        function toggleRapidFire() {
-            gameState.rapidFire = !gameState.rapidFire;
-            const btn = document.getElementById('rapid-fire');
-            btn.classList.toggle('toggle-on', gameState.rapidFire);
-            sendToLua('toggleRapidFire', { enabled: gameState.rapidFire });
-        }
-
-        function toggleNoSpread() {
-            gameState.noSpread = !gameState.noSpread;
-            const btn = document.getElementById('no-spread');
-            btn.classList.toggle('toggle-on', gameState.noSpread);
-            sendToLua('toggleNoSpread', { enabled: gameState.noSpread });
-        }
-
-        function addSuppressor() {
-            sendToLua('addSuppressor');
-        }
-
-        function addExtendedMag() {
-            sendToLua('addExtendedMag');
-        }
-
-        function addScope() {
-            sendToLua('addScope');
-        }
-
-        function giveAllAttachments() {
-            sendToLua('giveAllAttachments');
-        }
-
-        function givePistols() {
-            sendToLua('givePistols');
-        }
-
-        function giveShotguns() {
-            sendToLua('giveShotguns');
-        }
-
-        // Online players functions
-        function updatePlayerList(players) {
-            const playerList = document.getElementById('player-list');
-            playerList.innerHTML = '';
-            
-            players.forEach(player => {
-                const playerDiv = document.createElement('div');
-                playerDiv.className = 'player-item';
-                playerDiv.innerHTML = `
-                    ${player.name}
-                    <button class="button" onclick="teleportToPlayer('${player.id}')">Teleport</button>
-                    <button class="button" onclick="copyClothes('${player.id}')">Copy Clothes</button>
-                    <button class="button" onclick="spectatePlayer('${player.id}')">Spectate</button>
-                `;
-                playerList.appendChild(playerDiv);
+        // Add smooth scrolling and interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
             });
-        }
 
-        function teleportToPlayer(playerId) {
-            sendToLua('teleportToPlayer', { playerId: playerId });
-        }
+            // Progress bar
+            const progressBar = document.querySelector('.progress-bar');
+            window.addEventListener('scroll', () => {
+                const content = document.querySelector('.content');
+                const scrollTop = window.scrollY;
+                const docHeight = content.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                progressBar.style.width = `${scrollPercent}%`;
+            });
 
-        function copyClothes(playerId) {
-            sendToLua('copyClothes', { playerId: playerId });
-        }
+            // Back-to-top button
+            const backToTop = document.querySelector('.back-to-top');
+            window.addEventListener('scroll', () => {
+                backToTop.classList.toggle('visible', window.scrollY > 300);
+            });
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
 
-        function spectatePlayer(playerId) {
-            sendToLua('spectatePlayer', { playerId: playerId });
-        }
+            // Code block hover effects
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
 
-        function refreshPlayerList() {
-            sendToLua('refreshPlayerList');
-        }
+            // Code block toggle
+            const toggleButtons = document.querySelectorAll('.toggle-button');
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.parentElement;
+                    codeBlock.classList.toggle('collapsed');
+                    button.textContent = codeBlock.classList.contains('collapsed') ? 'Expand' : 'Collapse';
+                });
+            });
 
-        // Troll tab functions
-        function toggleKillAll() {
-            gameState.killAll = !gameState.killAll;
-            const btn = document.getElementById('kill-all');
-            btn.classList.toggle('toggle-on', gameState.killAll);
-            sendToLua('toggleKillAll', { enabled: gameState.killAll });
-        }
+            // Copy to clipboard
+            const copyButtons = document.querySelectorAll('.copy-button');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const code = button.nextElementSibling.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                });
+            });
 
-        // Vehicle tab functions
-        function selectVehicle() {
-            const select = document.getElementById('vehicle-select');
-            gameState.vehicleInput = select.value;
-            gameState.lastVehicleSelection = select.value;
-        }
-
-        function useCustomInput() {
-            const input = document.getElementById('custom-vehicle');
-            if (input.value && input.value.trim() !== '') {
-                gameState.vehicleInput = input.value.trim().toLowerCase();
-                gameState.lastVehicleSelection = gameState.vehicleInput;
-            }
-        }
-
-        function spawnVehicle() {
-            const modelToSpawn = gameState.vehicleInput || gameState.lastVehicleSelection;
-            if (!modelToSpawn) {
-                updateStatus('Error: No vehicle selected or entered');
-                return;
-            }
-            sendToLua('spawnVehicle', { model: modelToSpawn });
-            gameState.vehicleInput = '';
-        }
-
-        function listVehicles() {
-            sendToLua('listVehicles');
-        }
-
-        function toggleVehicleGodMode() {
-            gameState.vehicleGodMode = !gameState.vehicleGodMode;
-            const btn = document.getElementById('vehicle-god-mode');
-            btn.classList.toggle('toggle-on', gameState.vehicleGodMode);
-            sendToLua('toggleVehicleGodMode', { enabled: gameState.vehicleGodMode });
-        }
-
-        function maxUpgradeVehicle() {
-            sendToLua('maxUpgradeVehicle');
-        }
-
-        // Exploits tab functions
-        function toggleAntiTP() {
-            gameState.antiTP = !gameState.antiTP;
-            const btn = document.getElementById('anti-tp');
-            btn.classList.toggle('toggle-on', gameState.antiTP);
-            sendToLua('toggleAntiTP', { enabled: gameState.antiTP });
-        }
-
-        function toggleFastSwim() {
-            gameState.fastSwim = !gameState.fastSwim;
-            const btn = document.getElementById('fast-swim');
-            btn.classList.toggle('toggle-on', gameState.fastSwim);
-            sendToLua('toggleFastSwim', { enabled: gameState.fastSwim });
-        }
-
-        // Misc tab functions
-        function toggleTimeFreeze() {
-            gameState.timeFreeze = !gameState.timeFreeze;
-            const btn = document.getElementById('time-freeze');
-            btn.classList.toggle('toggle-on', gameState.timeFreeze);
-            sendToLua('toggleTimeFreeze', { enabled: gameState.timeFreeze });
-        }
-
-        function adjustTimeSpeed(value) {
-            document.getElementById('time-speed-value').textContent = value;
-            sendToLua('adjustTimeSpeed', { value: parseFloat(value) });
-        }
-
-        function toggleNoTraffic() {
-            gameState.noTraffic = !gameState.noTraffic;
-            const btn = document.getElementById('no-traffic');
-            btn.classList.toggle('toggle-on', gameState.noTraffic);
-            sendToLua('toggleNoTraffic', { enabled: gameState.noTraffic });
-        }
-
-        // Settings functions
-        function setKeybind() {
-            const select = document.getElementById('keybind-select');
-            sendToLua('setKeybind', { key: select.value });
-        }
-
-        // Utility functions
-        function closeMenu() {
-            sendToLua('closeMenu');
-        }
-
-        function updateStatus(message) {
-            document.getElementById('status-bar').textContent = 'Status: ' + message;
-        }
-
-        // Initialize menu when loaded
-        window.addEventListener('load', function() {
-            sendToLua('menuLoaded');
-            updateStatus('Menu loaded successfully');
-            
-            // Request initial data
-            sendToLua('requestAuthKey');
-            sendToLua('refreshPlayerList');
-        });
-
-        // Keyboard event handlers for troll functions
-        document.addEventListener('keydown', function(event) {
-            if (gameState.killAll) {
-                if (event.key === 'e' || event.key === 'E') {
-                    toggleKillAll();
-                } else if (event.key === 'r' || event.key === 'R') {
-                    cycleWeapon();
+            // Typing effect for main title
+            const mainTitle = document.querySelector('#intro h1');
+            if (mainTitle) {
+                const originalText = mainTitle.textContent;
+                mainTitle.textContent = '';
+                let i = 0;
+                
+                function typeWriter() {
+                    if (i < originalText.length) {
+                        mainTitle.textContent += originalText.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    }
                 }
+                
+                setTimeout(typeWriter, 500);
             }
-        });
 
-        function cycleWeapon() {
-            const weapons = [
-                'VEHICLE_WEAPON_PLAYER_BULLET',
-                'VEHICLE_WEAPON_APC_MG'
-            ];
-            const currentIndex = weapons.indexOf(gameState.currentWeapon);
-            const nextIndex = (currentIndex + 1) % weapons.length;
-            gameState.currentWeapon = weapons[nextIndex];
-            document.getElementById('current-weapon').textContent = gameState.currentWeapon;
-            sendToLua('cycleWeapon', { weapon: gameState.currentWeapon });
-        }
+            // Smooth scrolling for anchors
+            document.querySelectorAll('a.anchor').forEach(anchor => {
+                anchor.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = document.querySelector(anchor.getAttribute('href'));
+                    target.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        });
     </script>
 </body>
 </html>

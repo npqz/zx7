@@ -3,240 +3,862 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macho DUI Menu</title>
+    <title>Z7F Menu</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            user-select: none;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .menu-container {
+            width: 750px;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        .menu-header {
+            background: linear-gradient(90deg, #ff0000, #cc0000);
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        .menu-body {
+            display: flex;
+            flex: 1;
             overflow: hidden;
         }
-        #menu {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 300px;
-            background: rgba(30, 30, 30, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
+
+        .tab-list {
+            width: 150px;
+            background: rgba(20, 20, 20, 0.9);
+            border-right: 1px solid #333;
         }
-        .tab {
-            padding: 8px;
-            cursor: pointer;
-            background: rgba(50, 50, 50, 0.8);
-            margin-bottom: 5px;
-            border-radius: 3px;
-        }
-        .tab:hover {
-            background: rgba(80, 80, 80, 0.8);
-        }
-        .section {
-            display: none;
-            margin-top: 10px;
-        }
-        .section.active {
-            display: block;
-        }
-        button {
+
+        .tab-button {
             width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            background: #1e90ff;
+            padding: 12px 8px;
+            background: transparent;
             border: none;
             color: white;
+            text-align: left;
             cursor: pointer;
-            border-radius: 3px;
+            font-size: 12px;
+            border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
         }
-        button:hover {
-            background: #4682b4;
+
+        .tab-button:hover {
+            background: rgba(255, 0, 0, 0.2);
         }
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 255, 0, 0.8);
+
+        .tab-button.active {
+            background: rgba(255, 0, 0, 0.4);
+            border-left: 3px solid #ff0000;
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: rgba(10, 10, 10, 0.8);
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            color: #ff0000;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:hover {
+            background: linear-gradient(135deg, #cc0000, #aa0000);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.toggle-on {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .slider input[type="range"] {
+            width: 100%;
+            background: #333;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        .dropdown {
+            width: 100%;
+            padding: 8px;
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .player-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(20, 20, 20, 0.7);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .player-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(40, 40, 40, 0.8);
+            border-radius: 4px;
+            border-left: 3px solid #ff0000;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .vehicle-card {
+            background: rgba(40, 40, 40, 0.8);
             padding: 10px;
             border-radius: 5px;
-            display: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #333;
+        }
+
+        .vehicle-card:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff0000;
+        }
+
+        .weapon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .weapon-item {
+            background: rgba(40, 40, 40, 0.8);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid #555;
+        }
+
+        .weapon-item:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-left-color: #ff0000;
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 11px;
+            border: 1px solid #333;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
         }
     </style>
 </head>
 <body>
-    <div id="menu">
-        <div class="tab" onclick="openTab('player')">Player</div>
-        <div class="tab" onclick="openTab('vehicle')">Vehicle</div>
-        <div class="tab" onclick="openTab('visual')">Visual</div>
-        <div class="tab" onclick="openTab('exploits')">Exploits</div>
-        
-        <div id="player" class="section">
-            <button onclick="toggleNoclip()">Toggle Noclip</button>
-            <button onclick="toggleFreecam()">Toggle Freecam</button>
-            <button onclick="walkOnWater()">Walk on Water</button>
-            <button onclick="vehicleShield()">Vehicle Shield</button>
-            <button onclick="shrinkPlayer()">Shrink Player</button>
-            <button onclick="killPlayer()">Kill Selected Player</button>
-            <button onclick="permKillPlayer()">Permanently Kill Player</button>
-            <button onclick="killAll()">Kill All Players</button>
+    <div class="menu-container">
+        <div class="menu-header">
+            Z7F Menu
+            <button class="close-btn" onclick="closeMenu()">×</button>
         </div>
-        <div id="vehicle" class="section">
-            <button onclick="takeControl()">Take Control</button>
-            <button onclick="vehicleRain()">Vehicle Rain</button>
-            <button onclick="magnetoMode()">Magneto Mode</button>
-            <button onclick="bringVehicle()">Bring Vehicle</button>
-            <button onclick="freezeVehicle()">Freeze Vehicle</button>
-            <button onclick="deleteVehicle()">Delete Vehicle</button>
-            <button onclick="blockVehicle()">Block Vehicle</button>
-            <button onclick="vehicleRGB()">Vehicle RGB</button>
-            <button onclick="spawnSpoofedVehicle()">Spawn Spoofed Vehicle</button>
-        </div>
-        <div id="visual" class="section">
-            <button onclick="toggleNightVision()">Night Vision</button>
-            <button onclick="toggleThermalVision()">Thermal Vision</button>
-            <button onclick="fpsBoost()">FPS Boost</button>
-            <button onclick="christmasMode()">Christmas Mode</button>
-            <button onclick="showMinimap()">Show Minimap</button>
-        </div>
-        <div id="exploits" class="section">
-            <button onclick="bypassFiveGuard()">Bypass FiveGuard</button>
-            <button onclick="bypassReaper()">Bypass Reaper</button>
-            <button onclick="bypassWaveshield()">Bypass Waveshield</button>
-            <button onclick="bypassElectron()">Bypass Electron</button>
-            <button onclick="bypassEagle()">Bypass Eagle AC</button>
-            <button onclick="clipboardBypass()">Clipboard Bypass</button>
+        <div class="menu-body">
+            <div class="tab-list">
+                <button class="tab-button active" onclick="showTab('self')">Self</button>
+                <button class="tab-button" onclick="showTab('weapons')">Weapons</button>
+                <button class="tab-button" onclick="showTab('online')">Online Players</button>
+                <button class="tab-button" onclick="showTab('troll')">Troll</button>
+                <button class="tab-button" onclick="showTab('vehicle')">Vehicle</button>
+                <button class="tab-button" onclick="showTab('exploits')">Exploits</button>
+                <button class="tab-button" onclick="showTab('misc')">Misc</button>
+                <button class="tab-button" onclick="showTab('settings')">Settings</button>
+            </div>
+            <div class="tab-content">
+                <!-- Self Tab -->
+                <div id="self-tab" class="tab-panel">
+                    <div class="section">
+                        <div class="section-title">Player Options</div>
+                        <button class="button" id="god-mode" onclick="toggleGodMode()">Toggle God Mode</button>
+                        <button class="button" onclick="healPlayer()">Heal Player</button>
+                        <button class="button" onclick="fullArmour()">Full Armour</button>
+                        <button class="button" id="super-speed" onclick="toggleSuperSpeed()">Toggle Super Speed</button>
+                        <button class="button" onclick="teleportToWaypoint()">Teleport to Waypoint</button>
+                        <button class="button" id="super-jump" onclick="toggleSuperJump()">Toggle Super Jump</button>
+                        <button class="button" onclick="clearWanted()">Clear Wanted Level</button>
+                        <button class="button" id="no-ragdoll" onclick="toggleNoRagdoll()">Toggle No Ragdoll</button>
+                        <button class="button" id="invisible" onclick="toggleInvisible()">Toggle Invisible</button>
+                        <button class="button" id="infinite-stamina" onclick="toggleInfiniteStamina()">Toggle Infinite Stamina</button>
+                        <button class="button" id="no-collision" onclick="toggleNoCollision()">Toggle No Collision</button>
+                        <button class="button" onclick="changePlayerModel()">Change Player Model</button>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">Advanced Health</div>
+                        <div class="input-group">
+                            <label>Stamina: <span id="stamina-value">50</span>%</label>
+                            <input type="range" min="0" max="100" value="50" class="slider" 
+                                   oninput="setStamina(this.value)">
+                        </div>
+                        <div class="input-group">
+                            <label>Recovery Rate: <span id="recovery-value">1.0</span>x</label>
+                            <input type="range" min="0" max="2" step="0.1" value="1.0" class="slider" 
+                                   oninput="setRecoveryRate(this.value)">
+                        </div>
+                        <button class="button" id="fire-explosion-proof" onclick="toggleFireExplosionProof()">Toggle Fire/Explosion Proof</button>
+                    </div>
+                </div>
+
+                <!-- Weapons Tab -->
+                <div id="weapons-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Weapon Options</div>
+                        <button class="button" onclick="giveAllWeapons()">Give All Weapons</button>
+                        <button class="button" id="infinite-ammo" onclick="toggleInfiniteAmmo()">Toggle Infinite Ammo</button>
+                        <button class="button" id="one-shot-kill" onclick="toggleOneShotKill()">Toggle One-Shot Kill</button>
+                        <button class="button" onclick="removeAllWeapons()">Remove All Weapons</button>
+                        <button class="button" id="fire-bullets" onclick="toggleFireBullets()">Toggle Fire Bullets</button>
+                        <button class="button" id="anti-recoil" onclick="toggleAntiRecoil()">Toggle Anti-Recoil</button>
+                        <button class="button" id="rapid-fire" onclick="toggleRapidFire()">Toggle Rapid Fire</button>
+                        <button class="button" id="no-spread" onclick="toggleNoSpread()">Toggle No Spread</button>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">Weapon Customization</div>
+                        <button class="button" onclick="addSuppressor()">Add Suppressor</button>
+                        <button class="button" onclick="addExtendedMag()">Add Extended Mag</button>
+                        <button class="button" onclick="addScope()">Add Scope</button>
+                        <button class="button" onclick="giveAllAttachments()">Give All Attachments</button>
+                    </div>
+                    <div class="section">
+                        <div class="section-title">Weapon Categories</div>
+                        <button class="button" onclick="givePistols()">Give Pistols</button>
+                        <button class="button" onclick="giveShotguns()">Give Shotguns</button>
+                    </div>
+                </div>
+
+                <!-- Online Players Tab -->
+                <div id="online-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Online Players</div>
+                        <div class="player-list" id="player-list">
+                            <div class="player-item">
+                                Player_1001 
+                                <button class="button" onclick="teleportToPlayer('Player_1001')">Teleport</button>
+                                <button class="button" onclick="copyClothes('Player_1001')">Copy Clothes</button>
+                                <button class="button" onclick="spectatePlayer('Player_1001')">Spectate</button>
+                            </div>
+                            <div class="player-item">
+                                Player_1002
+                                <button class="button" onclick="teleportToPlayer('Player_1002')">Teleport</button>
+                                <button class="button" onclick="copyClothes('Player_1002')">Copy Clothes</button>
+                                <button class="button" onclick="spectatePlayer('Player_1002')">Spectate</button>
+                            </div>
+                        </div>
+                        <button class="button" onclick="refreshPlayerList()">Refresh Player List</button>
+                    </div>
+                </div>
+
+                <!-- Troll Tab -->
+                <div id="troll-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Welcome To Troll Tab</div>
+                        <p style="color: #0f0; margin-bottom: 15px;">Just Safe Here!</p>
+                        <button class="button" id="kill-all" onclick="toggleKillAll()">Kill All (Toggle with E, Cycle with R)</button>
+                        <div style="margin-top: 10px; font-size: 11px; color: #ccc;">
+                            Current Weapon: <span id="current-weapon">VEHICLE_WEAPON_PLAYER_BULLET</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Tab -->
+                <div id="vehicle-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Vehicle Spawner</div>
+                        <div class="input-group">
+                            <label>Select Vehicle:</label>
+                            <select class="dropdown" id="vehicle-select" onchange="selectVehicle()">
+                                <option value="">-- Select Vehicle --</option>
+                                <option value="adder">Adder</option>
+                                <option value="sultan">Sultan</option>
+                                <option value="zentorno">Zentorno</option>
+                                <option value="banshee">Banshee</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Custom Vehicle Model:</label>
+                            <input type="text" class="input-field" id="custom-vehicle" placeholder="e.g., adder">
+                            <button class="button" onclick="useCustomInput()">Use Custom Input</button>
+                        </div>
+                        <button class="button" onclick="spawnVehicle()">Spawn Car</button>
+                        <button class="button" onclick="listVehicles()">List Vehicles</button>
+                        <button class="button" id="vehicle-god-mode" onclick="toggleVehicleGodMode()">Toggle Vehicle God Mode</button>
+                        <button class="button" onclick="maxUpgradeVehicle()">Max Upgrade Vehicle</button>
+                    </div>
+                </div>
+
+                <!-- Exploits Tab -->
+                <div id="exploits-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Exploit Options</div>
+                        <button class="button" id="anti-tp" onclick="toggleAntiTP()">Toggle Anti-TP</button>
+                        <button class="button" id="fast-swim" onclick="toggleFastSwim()">Toggle Fast Swim</button>
+                        <p style="color: #ff0; margin-top: 15px; font-size: 11px;">
+                            Advanced exploit features are active. Use responsibly.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Misc Tab -->
+                <div id="misc-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">World Modifiers</div>
+                        <button class="button" id="time-freeze" onclick="toggleTimeFreeze()">Toggle Time Freeze</button>
+                        <div class="input-group">
+                            <label>Time Speed: <span id="time-speed-value">1.0</span>x</label>
+                            <input type="range" min="0.1" max="10.0" step="0.1" value="1.0" class="slider" 
+                                   oninput="adjustTimeSpeed(this.value)">
+                        </div>
+                        <button class="button" id="no-traffic" onclick="toggleNoTraffic()">Toggle No Traffic</button>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings-tab" class="tab-panel" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">Menu Settings</div>
+                        <div class="input-group">
+                            <label>Menu Keybind:</label>
+                            <select class="dropdown" id="keybind-select" onchange="setKeybind()">
+                                <option value="DELETE">DELETE</option>
+                                <option value="INSERT">INSERT</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 20px; padding: 10px; background: rgba(40, 40, 40, 0.8); border-radius: 5px;">
+                            <div style="font-size: 12px; color: #ccc;">Authentication Key:</div>
+                            <div style="font-size: 14px; color: #ff0; font-weight: bold;" id="auth-key">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="notification" class="notification"></div>
+
+    <div class="status-bar" id="status-bar">
+        Status: Ready
+    </div>
 
     <script>
-        let isMenuOpen = false;
-        let currentTab = 'player';
+        // Global state variables
+        let gameState = {
+            godMode: false,
+            superSpeed: false,
+            superJump: false,
+            noRagdoll: false,
+            invisible: false,
+            infiniteStamina: false,
+            noCollision: false,
+            infiniteAmmo: false,
+            oneShotKill: false,
+            fireBullets: false,
+            antiRecoil: false,
+            rapidFire: false,
+            noSpread: false,
+            vehicleGodMode: false,
+            antiTP: false,
+            fastSwim: false,
+            timeFreeze: false,
+            noTraffic: false,
+            killAll: false,
+            fireExplosionProof: false,
+            currentWeapon: 'VEHICLE_WEAPON_PLAYER_BULLET',
+            vehicleInput: '',
+            lastVehicleSelection: ''
+        };
 
-        window.addEventListener('message', (event) => {
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab panels
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.style.display = 'none');
+            
+            // Remove active class from all tab buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab panel
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Message handler for communication with Lua
+        window.addEventListener('message', function(event) {
             const data = event.data;
-            if (data.action === 'toggleMenu') {
-                isMenuOpen = !isMenuOpen;
-                document.getElementById('menu').style.display = isMenuOpen ? 'block' : 'none';
-            } else if (data.action === 'notify') {
-                showNotification(data.message);
+            
+            if (data.type === 'updatePlayers') {
+                updatePlayerList(data.players);
+            } else if (data.type === 'updateAuthKey') {
+                document.getElementById('auth-key').textContent = data.key;
+            } else if (data.type === 'updateStatus') {
+                document.getElementById('status-bar').textContent = 'Status: ' + data.message;
             }
         });
 
-        function openTab(tabName) {
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
+        // Send message to Lua
+        function sendToLua(action, data = {}) {
+            const message = { action: action, data: data };
+            // This would be handled by the DUI message system
+            console.log('Sending to Lua:', message);
+            // In actual implementation, this would use the DUI message system
+        }
+
+        // Self tab functions
+        function toggleGodMode() {
+            gameState.godMode = !gameState.godMode;
+            const btn = document.getElementById('god-mode');
+            btn.classList.toggle('toggle-on', gameState.godMode);
+            sendToLua('toggleGodMode', { enabled: gameState.godMode });
+        }
+
+        function healPlayer() {
+            sendToLua('healPlayer');
+        }
+
+        function fullArmour() {
+            sendToLua('fullArmour');
+        }
+
+        function toggleSuperSpeed() {
+            gameState.superSpeed = !gameState.superSpeed;
+            const btn = document.getElementById('super-speed');
+            btn.classList.toggle('toggle-on', gameState.superSpeed);
+            sendToLua('toggleSuperSpeed', { enabled: gameState.superSpeed });
+        }
+
+        function teleportToWaypoint() {
+            sendToLua('teleportToWaypoint');
+        }
+
+        function toggleSuperJump() {
+            gameState.superJump = !gameState.superJump;
+            const btn = document.getElementById('super-jump');
+            btn.classList.toggle('toggle-on', gameState.superJump);
+            sendToLua('toggleSuperJump', { enabled: gameState.superJump });
+        }
+
+        function clearWanted() {
+            sendToLua('clearWanted');
+        }
+
+        function toggleNoRagdoll() {
+            gameState.noRagdoll = !gameState.noRagdoll;
+            const btn = document.getElementById('no-ragdoll');
+            btn.classList.toggle('toggle-on', gameState.noRagdoll);
+            sendToLua('toggleNoRagdoll', { enabled: gameState.noRagdoll });
+        }
+
+        function toggleInvisible() {
+            gameState.invisible = !gameState.invisible;
+            const btn = document.getElementById('invisible');
+            btn.classList.toggle('toggle-on', gameState.invisible);
+            sendToLua('toggleInvisible', { enabled: gameState.invisible });
+        }
+
+        function toggleInfiniteStamina() {
+            gameState.infiniteStamina = !gameState.infiniteStamina;
+            const btn = document.getElementById('infinite-stamina');
+            btn.classList.toggle('toggle-on', gameState.infiniteStamina);
+            sendToLua('toggleInfiniteStamina', { enabled: gameState.infiniteStamina });
+        }
+
+        function toggleNoCollision() {
+            gameState.noCollision = !gameState.noCollision;
+            const btn = document.getElementById('no-collision');
+            btn.classList.toggle('toggle-on', gameState.noCollision);
+            sendToLua('toggleNoCollision', { enabled: gameState.noCollision });
+        }
+
+        function changePlayerModel() {
+            sendToLua('changePlayerModel');
+        }
+
+        function setStamina(value) {
+            document.getElementById('stamina-value').textContent = value;
+            sendToLua('setStamina', { value: parseFloat(value) });
+        }
+
+        function setRecoveryRate(value) {
+            document.getElementById('recovery-value').textContent = value;
+            sendToLua('setRecoveryRate', { value: parseFloat(value) });
+        }
+
+        function toggleFireExplosionProof() {
+            gameState.fireExplosionProof = !gameState.fireExplosionProof;
+            const btn = document.getElementById('fire-explosion-proof');
+            btn.classList.toggle('toggle-on', gameState.fireExplosionProof);
+            sendToLua('toggleFireExplosionProof', { enabled: gameState.fireExplosionProof });
+        }
+
+        // Weapons tab functions
+        function giveAllWeapons() {
+            sendToLua('giveAllWeapons');
+        }
+
+        function toggleInfiniteAmmo() {
+            gameState.infiniteAmmo = !gameState.infiniteAmmo;
+            const btn = document.getElementById('infinite-ammo');
+            btn.classList.toggle('toggle-on', gameState.infiniteAmmo);
+            sendToLua('toggleInfiniteAmmo', { enabled: gameState.infiniteAmmo });
+        }
+
+        function toggleOneShotKill() {
+            gameState.oneShotKill = !gameState.oneShotKill;
+            const btn = document.getElementById('one-shot-kill');
+            btn.classList.toggle('toggle-on', gameState.oneShotKill);
+            sendToLua('toggleOneShotKill', { enabled: gameState.oneShotKill });
+        }
+
+        function removeAllWeapons() {
+            sendToLua('removeAllWeapons');
+        }
+
+        function toggleFireBullets() {
+            gameState.fireBullets = !gameState.fireBullets;
+            const btn = document.getElementById('fire-bullets');
+            btn.classList.toggle('toggle-on', gameState.fireBullets);
+            sendToLua('toggleFireBullets', { enabled: gameState.fireBullets });
+        }
+
+        function toggleAntiRecoil() {
+            gameState.antiRecoil = !gameState.antiRecoil;
+            const btn = document.getElementById('anti-recoil');
+            btn.classList.toggle('toggle-on', gameState.antiRecoil);
+            sendToLua('toggleAntiRecoil', { enabled: gameState.antiRecoil });
+        }
+
+        function toggleRapidFire() {
+            gameState.rapidFire = !gameState.rapidFire;
+            const btn = document.getElementById('rapid-fire');
+            btn.classList.toggle('toggle-on', gameState.rapidFire);
+            sendToLua('toggleRapidFire', { enabled: gameState.rapidFire });
+        }
+
+        function toggleNoSpread() {
+            gameState.noSpread = !gameState.noSpread;
+            const btn = document.getElementById('no-spread');
+            btn.classList.toggle('toggle-on', gameState.noSpread);
+            sendToLua('toggleNoSpread', { enabled: gameState.noSpread });
+        }
+
+        function addSuppressor() {
+            sendToLua('addSuppressor');
+        }
+
+        function addExtendedMag() {
+            sendToLua('addExtendedMag');
+        }
+
+        function addScope() {
+            sendToLua('addScope');
+        }
+
+        function giveAllAttachments() {
+            sendToLua('giveAllAttachments');
+        }
+
+        function givePistols() {
+            sendToLua('givePistols');
+        }
+
+        function giveShotguns() {
+            sendToLua('giveShotguns');
+        }
+
+        // Online players functions
+        function updatePlayerList(players) {
+            const playerList = document.getElementById('player-list');
+            playerList.innerHTML = '';
+            
+            players.forEach(player => {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-item';
+                playerDiv.innerHTML = `
+                    ${player.name}
+                    <button class="button" onclick="teleportToPlayer('${player.id}')">Teleport</button>
+                    <button class="button" onclick="copyClothes('${player.id}')">Copy Clothes</button>
+                    <button class="button" onclick="spectatePlayer('${player.id}')">Spectate</button>
+                `;
+                playerList.appendChild(playerDiv);
             });
-            document.getElementById(tabName).classList.add('active');
-            currentTab = tabName;
         }
 
-        function showNotification(message) {
-            const notif = document.getElementById('notification');
-            notif.textContent = message;
-            notif.style.display = 'block';
-            setTimeout(() => {
-                notif.style.display = 'none';
-            }, 3000);
+        function teleportToPlayer(playerId) {
+            sendToLua('teleportToPlayer', { playerId: playerId });
         }
 
-        // Player Functions
-        function toggleNoclip() {
-            postMessage({ action: 'toggleNoclip' });
-        }
-        function toggleFreecam() {
-            postMessage({ action: 'toggleFreecam' });
-        }
-        function walkOnWater() {
-            postMessage({ action: 'walkOnWater' });
-        }
-        function vehicleShield() {
-            postMessage({ action: 'vehicleShield' });
-        }
-        function shrinkPlayer() {
-            postMessage({ action: 'shrinkPlayer' });
-        }
-        function killPlayer() {
-            postMessage({ action: 'killPlayer' });
-        }
-        function permKillPlayer() {
-            postMessage({ action: 'permKillPlayer' });
-        }
-        function killAll() {
-            postMessage({ action: 'killAll' });
+        function copyClothes(playerId) {
+            sendToLua('copyClothes', { playerId: playerId });
         }
 
-        // Vehicle Functions
-        function takeControl() {
-            postMessage({ action: 'takeControl' });
-        }
-        function vehicleRain() {
-            postMessage({ action: 'vehicleRain' });
-        }
-        function magnetoMode() {
-            postMessage({ action: 'magnetoMode' });
-        }
-        function bringVehicle() {
-            postMessage({ action: 'bringVehicle' });
-        }
-        function freezeVehicle() {
-            postMessage({ action: 'freezeVehicle' });
-        }
-        function deleteVehicle() {
-            postMessage({ action: 'deleteVehicle' });
-        }
-        function blockVehicle() {
-            postMessage({ action: 'blockVehicle' });
-        }
-        function vehicleRGB() {
-            postMessage({ action: 'vehicleRGB' });
-        }
-        function spawnSpoofedVehicle() {
-            postMessage({ action: 'spawnSpoofedVehicle' });
+        function spectatePlayer(playerId) {
+            sendToLua('spectatePlayer', { playerId: playerId });
         }
 
-        // Visual Functions
-        function toggleNightVision() {
-            postMessage({ action: 'toggleNightVision' });
-        }
-        function toggleThermalVision() {
-            postMessage({ action: 'toggleThermalVision' });
-        }
-        function fpsBoost() {
-            postMessage({ action: 'fpsBoost' });
-        }
-        function christmasMode() {
-            postMessage({ action: 'christmasMode' });
-        }
-        function showMinimap() {
-            postMessage({ action: 'showMinimap' });
+        function refreshPlayerList() {
+            sendToLua('refreshPlayerList');
         }
 
-        // Exploit Functions
-        function bypassFiveGuard() {
-            postMessage({ action: 'bypassFiveGuard' });
-        }
-        function bypassReaper() {
-            postMessage({ action: 'bypassReaper' });
-        }
-        function bypassWaveshield() {
-            postMessage({ action: 'bypassWaveshield' });
-        }
-        function bypassElectron() {
-            postMessage({ action: 'bypassElectron' });
-        }
-        function bypassEagle() {
-            postMessage({ action: 'bypassEagle' });
-        }
-        function clipboardBypass() {
-            postMessage({ action: 'clipboardBypass' });
+        // Troll tab functions
+        function toggleKillAll() {
+            gameState.killAll = !gameState.killAll;
+            const btn = document.getElementById('kill-all');
+            btn.classList.toggle('toggle-on', gameState.killAll);
+            sendToLua('toggleKillAll', { enabled: gameState.killAll });
         }
 
-        function postMessage(data) {
-            window.postMessage(data, '*');
+        // Vehicle tab functions
+        function selectVehicle() {
+            const select = document.getElementById('vehicle-select');
+            gameState.vehicleInput = select.value;
+            gameState.lastVehicleSelection = select.value;
         }
 
-        // Open default tab
-        openTab('player');
+        function useCustomInput() {
+            const input = document.getElementById('custom-vehicle');
+            if (input.value && input.value.trim() !== '') {
+                gameState.vehicleInput = input.value.trim().toLowerCase();
+                gameState.lastVehicleSelection = gameState.vehicleInput;
+            }
+        }
+
+        function spawnVehicle() {
+            const modelToSpawn = gameState.vehicleInput || gameState.lastVehicleSelection;
+            if (!modelToSpawn) {
+                updateStatus('Error: No vehicle selected or entered');
+                return;
+            }
+            sendToLua('spawnVehicle', { model: modelToSpawn });
+            gameState.vehicleInput = '';
+        }
+
+        function listVehicles() {
+            sendToLua('listVehicles');
+        }
+
+        function toggleVehicleGodMode() {
+            gameState.vehicleGodMode = !gameState.vehicleGodMode;
+            const btn = document.getElementById('vehicle-god-mode');
+            btn.classList.toggle('toggle-on', gameState.vehicleGodMode);
+            sendToLua('toggleVehicleGodMode', { enabled: gameState.vehicleGodMode });
+        }
+
+        function maxUpgradeVehicle() {
+            sendToLua('maxUpgradeVehicle');
+        }
+
+        // Exploits tab functions
+        function toggleAntiTP() {
+            gameState.antiTP = !gameState.antiTP;
+            const btn = document.getElementById('anti-tp');
+            btn.classList.toggle('toggle-on', gameState.antiTP);
+            sendToLua('toggleAntiTP', { enabled: gameState.antiTP });
+        }
+
+        function toggleFastSwim() {
+            gameState.fastSwim = !gameState.fastSwim;
+            const btn = document.getElementById('fast-swim');
+            btn.classList.toggle('toggle-on', gameState.fastSwim);
+            sendToLua('toggleFastSwim', { enabled: gameState.fastSwim });
+        }
+
+        // Misc tab functions
+        function toggleTimeFreeze() {
+            gameState.timeFreeze = !gameState.timeFreeze;
+            const btn = document.getElementById('time-freeze');
+            btn.classList.toggle('toggle-on', gameState.timeFreeze);
+            sendToLua('toggleTimeFreeze', { enabled: gameState.timeFreeze });
+        }
+
+        function adjustTimeSpeed(value) {
+            document.getElementById('time-speed-value').textContent = value;
+            sendToLua('adjustTimeSpeed', { value: parseFloat(value) });
+        }
+
+        function toggleNoTraffic() {
+            gameState.noTraffic = !gameState.noTraffic;
+            const btn = document.getElementById('no-traffic');
+            btn.classList.toggle('toggle-on', gameState.noTraffic);
+            sendToLua('toggleNoTraffic', { enabled: gameState.noTraffic });
+        }
+
+        // Settings functions
+        function setKeybind() {
+            const select = document.getElementById('keybind-select');
+            sendToLua('setKeybind', { key: select.value });
+        }
+
+        // Utility functions
+        function closeMenu() {
+            sendToLua('closeMenu');
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status-bar').textContent = 'Status: ' + message;
+        }
+
+        // Initialize menu when loaded
+        window.addEventListener('load', function() {
+            sendToLua('menuLoaded');
+            updateStatus('Menu loaded successfully');
+            
+            // Request initial data
+            sendToLua('requestAuthKey');
+            sendToLua('refreshPlayerList');
+        });
+
+        // Keyboard event handlers for troll functions
+        document.addEventListener('keydown', function(event) {
+            if (gameState.killAll) {
+                if (event.key === 'e' || event.key === 'E') {
+                    toggleKillAll();
+                } else if (event.key === 'r' || event.key === 'R') {
+                    cycleWeapon();
+                }
+            }
+        });
+
+        function cycleWeapon() {
+            const weapons = [
+                'VEHICLE_WEAPON_PLAYER_BULLET',
+                'VEHICLE_WEAPON_APC_MG'
+            ];
+            const currentIndex = weapons.indexOf(gameState.currentWeapon);
+            const nextIndex = (currentIndex + 1) % weapons.length;
+            gameState.currentWeapon = weapons[nextIndex];
+            document.getElementById('current-weapon').textContent = gameState.currentWeapon;
+            sendToLua('cycleWeapon', { weapon: gameState.currentWeapon });
+        }
     </script>
+</body>
+</html>
